@@ -1,8 +1,6 @@
 package callgraph.callgraph;
 
-import com.intellij.find.findUsages.FindUsagesHandler;
-import com.intellij.find.findUsages.JavaFindUsagesHandler;
-import com.intellij.find.findUsages.JavaFindUsagesOptions;
+import com.intellij.lang.jvm.JvmNamedElement;
 import com.intellij.openapi.actionSystem.AnAction;
 import com.intellij.openapi.actionSystem.AnActionEvent;
 import com.intellij.openapi.actionSystem.DefaultActionGroup;
@@ -12,42 +10,29 @@ import com.intellij.openapi.project.Project;
 import com.intellij.openapi.wm.ToolWindow;
 import com.intellij.openapi.wm.ToolWindowFactory;
 import com.intellij.psi.*;
-import com.intellij.psi.search.searches.ReferencesSearch;
+import com.intellij.psi.search.searches.MethodReferencesSearch;
 import com.intellij.psi.util.PsiTreeUtil;
 import com.intellij.ui.content.Content;
 import com.intellij.ui.content.ContentFactory;
-import com.intellij.usageView.UsageInfo;
-import com.intellij.util.Processor;
 import com.mxgraph.layout.hierarchical.mxHierarchicalLayout;
+import com.mxgraph.model.mxCell;
 import com.mxgraph.swing.mxGraphComponent;
-import com.mxgraph.util.mxConstants;
 import com.mxgraph.view.mxGraph;
-import com.mxgraph.view.mxStylesheet;
 import org.jetbrains.annotations.NotNull;
 
-import java.util.Hashtable;
-import java.util.List;
-import java.util.Objects;
+import java.util.*;
+import java.util.stream.Collectors;
 
 public class MyToolWindowFactory implements ToolWindowFactory {
 
     private mxGraphComponent graphComponent;
 
+    private HashMap<String, String> fromTo;
+
     @Override
     public void createToolWindowContent(@NotNull Project project, @NotNull ToolWindow toolWindow) {
         // Create the graph component
         mxGraph graph = new mxGraph();
-        graph.setAutoSizeCells(true);
-
-        mxStylesheet stylesheet = new mxStylesheet();
-        Hashtable<String, Object> style = new Hashtable<String, Object>();
-        style.put(mxConstants.STYLE_AUTOSIZE, mxConstants.ALIGN_CENTER);
-        style.put(mxConstants.STYLE_FONTSIZE, 12);
-        style.put(mxConstants.STYLE_FONTFAMILY, "Arial");
-        style.put(mxConstants.STYLE_SPACING, 10);
-        stylesheet.putCellStyle("vertexStyle", style);
-        graph.setStylesheet(stylesheet);
-
         graphComponent = new mxGraphComponent(graph);
 
         // Add the graph component to the tool window content pane
@@ -70,6 +55,7 @@ public class MyToolWindowFactory implements ToolWindowFactory {
                 graph.getModel().beginUpdate();
                 try {
                     graph.removeCells(graph.getChildVertices(graph.getDefaultParent()));
+                    fromTo = new HashMap<>();
                     addCallersToGraph(method, null, graph);
                 } finally {
                     mxHierarchicalLayout layout = new mxHierarchicalLayout(graph);
@@ -86,23 +72,56 @@ public class MyToolWindowFactory implements ToolWindowFactory {
         toolWindow.setTitleActions(List.of(actionGroup));
     }
 
-    private void addCallersToGraph(PsiMethod method, Object methodVertex, mxGraph graph) {
+    private void addCallersToGraph(PsiMethod method, mxCell methodVertex, mxGraph graph) {
         // Add the current method to the graph
         Object parent = graph.getDefaultParent();
 
         if (Objects.isNull(methodVertex)) {
-            methodVertex = graph.insertVertex(parent, null, method.getName(), 50, 50, 80, 30);
+            methodVertex = (mxCell) graph.insertVertex(parent, null, method.getContainingClass().getName() + "\n" + method.getName(), 50, 50, 200, 35, "fillColor=#ee5253;fontColor=white;strokeColor=white");
         }
 
         // Add the callers of the current method to the graph
-        for (PsiReference reference : ReferencesSearch.search(method)) {
+        Collection<PsiReference> allReferences = MethodReferencesSearch.search(method).findAll();
+
+        if (allReferences.isEmpty()) {
+            PsiMethod[] superMethods = method.findSuperMethods();
+            if (superMethods.length > 0) {
+                PsiMethod superMethod = superMethods[0];
+                if (PsiManager.getInstance(method.getProject()).isInProject(superMethod)) {
+                    addCallersToGraph(superMethod, methodVertex, graph);
+                    return;
+                }
+            }
+        }
+
+        for (PsiReference reference : allReferences) {
             PsiElement element = reference.getElement();
             if (element instanceof PsiReferenceExpression) {
                 PsiMethod caller = PsiTreeUtil.getParentOfType(element, PsiMethod.class);
                 if (caller != null) {
-                    Object callerVertex = graph.insertVertex(parent, null,  caller.getContainingClass().getName() + "\n" + caller.getName(), 0, 0, 200, 35);
+                    if (Objects.equals(fromTo.get(caller.getContainingClass().getName() + "." + caller.getName()), method.getContainingClass().getName() + "." + method.getName())) {
+                        continue;
+                    }
 
-                    graph.insertEdge(parent, null, "", callerVertex, methodVertex);
+                    fromTo.put(caller.getContainingClass().getName() + "." + caller.getName(), method.getContainingClass().getName() + "." + method.getName());
+
+                    String color = "#8395a7";
+                    String callerNameLowercase = caller.getContainingClass().getName().toLowerCase();
+                    if (callerNameLowercase.contains("controller")) {
+                        color = "#00d2d3";
+                    } else if (callerNameLowercase.contains("service")) {
+                        color = "#54a0ff";
+                    } else if (callerNameLowercase.contains("facade")) {
+                        color = "#ff9f43";
+                    } else if (callerNameLowercase.contains("dao")) {
+                        color = "#5f27cd";
+                    }
+
+                    mxCell callerVertex = (mxCell) graph.insertVertex(parent, null, caller.getContainingClass().getName() + "\n" + caller.getName(), 0, 0, 200, 35, "fillColor=" + color + ";fontColor=white;strokeColor=white");
+
+                    String parameters = Arrays.stream(method.getParameters()).map(JvmNamedElement::getName).collect(Collectors.joining(", "));
+
+                    graph.insertEdge(parent, null, parameters, callerVertex, methodVertex, "strokeColor=" + color + ";fontColor=white");
                     addCallersToGraph(caller, callerVertex, graph);
                 }
             }
