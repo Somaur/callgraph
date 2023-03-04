@@ -21,7 +21,6 @@ intellij {
 
 dependencies {
     implementation("org.tinyjee.jgraphx:jgraphx:3.4.1.3")
-    implementation("org.jetbrains.intellij.sdk:graph-api:1.0.0")
 }
 
 tasks {
