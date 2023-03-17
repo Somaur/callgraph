@@ -1,6 +1,5 @@
 package callgraph.callgraph;
 
-import com.intellij.lang.jvm.JvmNamedElement;
 import com.intellij.openapi.actionSystem.AnAction;
 import com.intellij.openapi.actionSystem.AnActionEvent;
 import com.intellij.openapi.actionSystem.DefaultActionGroup;
@@ -19,17 +18,17 @@ import com.intellij.psi.search.searches.MethodReferencesSearch;
 import com.intellij.psi.util.PsiTreeUtil;
 import com.intellij.ui.content.Content;
 import com.intellij.ui.content.ContentFactory;
-import com.intellij.util.concurrency.SwingWorker;
 import com.mxgraph.layout.hierarchical.mxHierarchicalLayout;
 import com.mxgraph.model.mxCell;
 import com.mxgraph.swing.mxGraphComponent;
 import com.mxgraph.view.mxGraph;
 import org.jetbrains.annotations.NotNull;
 
-import java.util.*;
-import java.util.stream.Collectors;
+import java.util.Collection;
+import java.util.List;
+import java.util.Objects;
 
-public class MyToolWindowFactory implements ToolWindowFactory {
+public class CallGraphToolWindowFactory implements ToolWindowFactory {
 
     private mxGraphComponent graphComponent;
 
@@ -39,6 +38,7 @@ public class MyToolWindowFactory implements ToolWindowFactory {
         mxGraph graph = new mxGraph();
         graph.setCellsEditable(false);
         graph.setAutoSizeCells(true);
+
         graphComponent = new mxGraphComponent(graph);
         graphComponent.setGridVisible(true);
         graphComponent.setConnectable(false);
@@ -61,6 +61,7 @@ public class MyToolWindowFactory implements ToolWindowFactory {
                 PsiElement element = psiFile.findElementAt(offset);
                 PsiMethod method = PsiTreeUtil.getParentOfType(element, PsiMethod.class);
 
+                // Do the graph creation in separate thread with progress bar
                 ProgressManager.getInstance().run(new Task.Backgroundable(project, "Generating Call Graph") {
                     public void run(@NotNull ProgressIndicator progressIndicator) {
                         graph.getModel().beginUpdate();
@@ -79,23 +80,24 @@ public class MyToolWindowFactory implements ToolWindowFactory {
             }
         };
 
-        // Add the action to the tool window toolbar
         DefaultActionGroup actionGroup = new DefaultActionGroup();
         actionGroup.add(updateGraphAction);
         toolWindow.setTitleActions(List.of(actionGroup));
     }
 
+    // TODO: separate this method into pieces, its a bit complex
+    // TODO: implement auto width for vertexes
     private void addCallersToGraph(PsiMethod method, mxCell methodVertex, mxGraph graph) {
-        // Add the current method to the graph
         Object parent = graph.getDefaultParent();
 
+        // Create methods own vertex
         if (Objects.isNull(methodVertex)) {
             methodVertex = (mxCell) graph.insertVertex(parent, null, method.getContainingClass().getName() + "\n" + method.getName(), 50, 50, 200, 35, "fillColor=#8395a7;fontColor=white;strokeColor=#8395a7");
         }
 
-        // Add the callers of the current method to the graph
         Collection<PsiReference> allReferences = MethodReferencesSearch.search(method).findAll();
 
+        // Find super method's references if the method has none
         if (allReferences.isEmpty()) {
             PsiMethod[] superMethods = method.findSuperMethods();
             if (superMethods.length > 0) {
@@ -107,12 +109,14 @@ public class MyToolWindowFactory implements ToolWindowFactory {
             }
         }
 
+        // Iterate over all references and generate the graph
         for (PsiReference reference : allReferences) {
             PsiElement element = reference.getElement();
             if (element instanceof PsiReferenceExpressionImpl) {
                 PsiMethod caller = PsiTreeUtil.getParentOfType(element, PsiMethod.class);
                 if (caller != null) {
                     try {
+                        // TODO: allow this to be managable by user with a panel or something
                         String color = "#8395a7";
                         String callerNameLowercase = caller.getContainingClass().getName().toLowerCase();
                         if (callerNameLowercase.contains("controller")) {
@@ -128,15 +132,15 @@ public class MyToolWindowFactory implements ToolWindowFactory {
                         PsiDocumentManager documentManager = PsiDocumentManager.getInstance(element.getProject());
                         int lineNumber = documentManager.getDocument((element).getContainingFile()).getLineNumber(((PsiReferenceExpressionImpl) element).getStartOffset());
 
+                        // Create caller vertex
                         String label = caller.getContainingClass().getName() + ":" + lineNumber + "\n" + caller.getName();
                         mxCell callerVertex = (mxCell) graph.insertVertex(parent, null, label, 0, 0, 200, 35, "fillColor=" + color + ";fontColor=white;strokeColor="+color+";autosize=1;");
 
-                        //String parameters = Arrays.stream(method.getParameters()).map(JvmNamedElement::getName).collect(Collectors.joining(", "));
-
+                        // Insert the edge between caller and the callee
                         graph.insertEdge(parent, null, "", callerVertex, methodVertex, "strokeColor=" + color + ";fontColor=white");
                         addCallersToGraph(caller, callerVertex, graph);
                     } catch (Exception e) {
-
+                        // TODO: log somehow
                     }
                 }
             }

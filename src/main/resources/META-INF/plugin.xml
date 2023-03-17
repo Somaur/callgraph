@@ -27,12 +27,6 @@
          Read more: https://plugins.jetbrains.com/docs/intellij/plugin-extension-points.html -->
     <extensions defaultExtensionNs="com.intellij">
         <toolWindow id="Call Graph" icon="AllIcons.General.Modified" anchor="bottom"
-                    factoryClass="callgraph.callgraph.MyToolWindowFactory"/>
+                    factoryClass="callgraph.callgraph.CallGraphToolWindowFactory"/>
     </extensions>
-    <actions>
-        <action id="callgraph.callgraph.GenerateCallGraphAction" class="callgraph.callgraph.GenerateCallGraphAction"
-                text="Generate Call Graph" description="Generates a call graph for the method the caret is in.">
-            <add-to-group group-id="ToolsMenu" anchor="first"/>
-        </action>
-    </actions>
 </idea-plugin>
