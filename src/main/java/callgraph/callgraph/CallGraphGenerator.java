@@ -3,9 +3,8 @@ package callgraph.callgraph;
 import com.intellij.psi.PsiElement;
 import com.intellij.psi.PsiMethod;
 import com.intellij.psi.PsiReference;
-import com.intellij.psi.search.searches.MethodReferencesSearch;
+import com.intellij.psi.search.searches.ReferencesSearch;
 import com.intellij.psi.util.PsiTreeUtil;
-import org.jetbrains.annotations.NotNull;
 import org.json.simple.JSONArray;
 import org.json.simple.JSONObject;
 
@@ -27,15 +26,10 @@ public class CallGraphGenerator {
     public String generate() {
         clear();
 
-        JSONObject mainNode = new JSONObject();
-        mainNode.put("id", mainMethod.hashCode());
-        mainNode.put("label", mainMethod.getName());
-        mainNode.put("group", mainMethod.getContainingClass().getQualifiedName());
-        mainNode.put("title", mainMethod.getContainingClass().getQualifiedName());
-        mainNode.put("level", 0);
-        mainNode.put("x", 0);
-        mainNode.put("y", 0);
+        JSONObject mainNode = createMethodNode(mainMethod, 0);
+        mainNode.put("shape", "circle");
         mainNode.put("fixed", true);
+
         createGroupIfNotExists(mainMethod);
 
         nodes.add(mainNode);
@@ -57,7 +51,7 @@ public class CallGraphGenerator {
     }
 
     private void findAndAddCallers(PsiMethod method, int depth) {
-        Collection<PsiReference> allReferences = MethodReferencesSearch.search(method).findAll();
+        Collection<PsiReference> allReferences = ReferencesSearch.search(method).findAll();
         for (PsiReference reference : allReferences) {
             PsiElement element = reference.getElement();
             PsiMethod caller = PsiTreeUtil.getParentOfType(element, PsiMethod.class);
@@ -79,13 +73,12 @@ public class CallGraphGenerator {
         }
     }
 
-    @NotNull
-    private static JSONObject createMethodNode(PsiMethod caller, int depth) {
+    private JSONObject createMethodNode(PsiMethod method, int depth) {
         JSONObject callerNode = new JSONObject();
-        callerNode.put("id", caller.hashCode());
-        callerNode.put("label", caller.getContainingClass().getName() + "\n" + caller.getName());
-        callerNode.put("group", caller.getContainingClass().getQualifiedName());
-        callerNode.put("title", caller.getContainingClass().getQualifiedName() + "\n" + caller.getName());
+        callerNode.put("id", method.hashCode());
+        callerNode.put("label", method.getContainingClass().getName() + "\n" + method.getName());
+        callerNode.put("group", method.getContainingClass().getQualifiedName());
+        callerNode.put("title", method.getContainingClass().getQualifiedName() + "\n" + method.getName());
         callerNode.put("level", depth);
         return callerNode;
     }

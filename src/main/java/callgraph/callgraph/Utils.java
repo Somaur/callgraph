@@ -6,10 +6,10 @@ import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.util.stream.Collectors;
 
-public class Utils {
+public final class Utils {
     private static final String[] colorPalette = {
-        "#FF0000", "#FFA500", "#FFFF00", "#008000", "#00FFFF", "#0000FF",
-        "#800080", "#FF00FF", "#FFC0CB", "#FFD700", "#8B4513", "#808080"
+            "#FF0000", "#FFA500", "#FFFF00", "#008000", "#00FFFF", "#0000FF",
+            "#800080", "#FF00FF", "#FFC0CB", "#FFD700", "#8B4513", "#808080"
     };
 
     private static int colorIndex = 0;

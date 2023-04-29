@@ -25,7 +25,7 @@ import org.jetbrains.annotations.NotNull;
 import javax.swing.*;
 import java.util.List;
 
-public class CallGraphToolWindowFactory implements ToolWindowFactory {
+public final class CallGraphToolWindowFactory implements ToolWindowFactory {
     private CallGraphGenerator generator;
 
     @Override
@@ -41,7 +41,6 @@ public class CallGraphToolWindowFactory implements ToolWindowFactory {
         AnAction updateGraphAction = new AnAction("Update Graph") {
             @Override
             public void actionPerformed(@NotNull AnActionEvent event) {
-                // Get the current method
                 Editor editor = FileEditorManager.getInstance(project).getSelectedTextEditor();
                 PsiFile psiFile = PsiDocumentManager.getInstance(project).getPsiFile(editor.getDocument());
                 int offset = editor.getCaretModel().getOffset();
