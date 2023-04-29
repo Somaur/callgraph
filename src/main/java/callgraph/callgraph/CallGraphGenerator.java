@@ -3,6 +3,7 @@ package callgraph.callgraph;
 import com.intellij.psi.PsiElement;
 import com.intellij.psi.PsiMethod;
 import com.intellij.psi.PsiReference;
+import com.intellij.psi.search.searches.MethodReferencesSearch;
 import com.intellij.psi.search.searches.ReferencesSearch;
 import com.intellij.psi.util.PsiTreeUtil;
 import org.json.simple.JSONArray;
@@ -50,6 +51,7 @@ public class CallGraphGenerator {
         groups.clear();
     }
 
+    // todo: methods that are implemented from interfaces and used from interface reference are not shown, fix this
     private void findAndAddCallers(PsiMethod method, int depth) {
         Collection<PsiReference> allReferences = ReferencesSearch.search(method).findAll();
         for (PsiReference reference : allReferences) {
@@ -57,19 +59,33 @@ public class CallGraphGenerator {
             PsiMethod caller = PsiTreeUtil.getParentOfType(element, PsiMethod.class);
             if (caller == null || caller.equals(method) || !caller.getProject().equals(method.getProject())) continue;
 
-            if (nodes.stream().noneMatch(node -> ((JSONObject) node).get("id").equals(caller.hashCode()))) {
+            // todo: this should be slow, find a better way to do this (maybe use a map?)
+            final boolean nodeNotExists = nodes.stream().noneMatch(node -> ((JSONObject) node).get("id").equals(caller.hashCode()));
+
+            if (nodeNotExists) {
                 JSONObject callerNode = createMethodNode(caller, depth);
                 nodes.add(callerNode);
                 createGroupIfNotExists(caller);
             }
 
-            JSONObject edge = new JSONObject();
-            edge.put("from", caller.hashCode());
-            edge.put("to", method.hashCode());
+            // todo: this should be slow, find a better way to do this (maybe use a map?)
+            final boolean edgeNotExists = edges.stream().noneMatch(edge -> {
+                JSONObject edgeObject = (JSONObject) edge;
+                return edgeObject.get("from").equals(caller.hashCode()) && edgeObject.get("to").equals(method.hashCode());
+            });
 
-            edges.add(edge);
+            if (edgeNotExists) {
+                JSONObject edge = new JSONObject();
+                edge.put("from", caller.hashCode());
+                edge.put("to", method.hashCode());
+                edges.add(edge);
+            }
 
-            findAndAddCallers(caller, depth + 1);
+            // tried to avoid stackoverflows for methods that call each other recursively, not sure if this works, seems like so
+            // todo: check properly if this works
+            if (nodeNotExists || edgeNotExists) {
+                findAndAddCallers(caller, depth + 1);
+            }
         }
     }
 
