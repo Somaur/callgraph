@@ -17,30 +17,8 @@
 <body>
 <div id="network"></div>
 <script type="text/javascript">
-    // create an array with nodes
-    var nodes = new vis.DataSet([
-        { id: 1, label: "Node 1" },
-        { id: 2, label: "Node 2" },
-        { id: 3, label: "Node 3" },
-        { id: 4, label: "Node 4" },
-        { id: 5, label: "Node 5" },
-    ]);
-
-    // create an array with edges
-    var edges = new vis.DataSet([
-        { from: 1, to: 3 },
-        { from: 1, to: 2 },
-        { from: 2, to: 4 },
-        { from: 2, to: 5 },
-        { from: 3, to: 3 },
-    ]);
-
     // create a network
     var container = document.getElementById("network");
-    var data = {
-        nodes: nodes,
-        edges: edges,
-    };
     var options = {
         nodes: {
             shape: "box"
@@ -48,13 +26,43 @@
         edges: {
             arrows: {
                 to: {
-                    enabled: true,
-                    scaleFactor: 0.5,
+                    enabled: true
                 },
             },
+        },
+        interaction: {
+            zoomSpeed: 0.25,
+        },
+        physics:{
+            enabled: true,
+            barnesHut: {
+                theta: 0.5,
+                gravitationalConstant: -3000,
+                centralGravity: 0,
+                springLength: 120,
+                springConstant: 0.04,
+                damping: 0.09,
+                avoidOverlap: 0
+            },
+            solver: 'barnesHut'
         }
     };
-    var network = new vis.Network(container, data, options);
+    var data = {}
+    var network = new vis.Network(container, {}, options);
+    network.on("selectNode", function (params) {
+        if (params.nodes.length == 1) {
+
+        }
+    });
+    function updateNetwork(data) {
+        options.groups = data.groups;
+        network.setOptions(options);
+        network.setData(data);
+        network.moveTo({
+            position: {x:0, y:0}
+        });
+    }
+    updateNetwork(data)
 </script>
 </body>
 </html>

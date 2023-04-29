@@ -26,6 +26,8 @@ import javax.swing.*;
 import java.util.List;
 
 public class CallGraphToolWindowFactory implements ToolWindowFactory {
+    private CallGraphGenerator generator;
+
     @Override
     public void createToolWindowContent(@NotNull Project project, @NotNull ToolWindow toolWindow) {
         JBCefBrowser browser = new JBCefBrowser();
@@ -50,9 +52,9 @@ public class CallGraphToolWindowFactory implements ToolWindowFactory {
                 ProgressManager.getInstance().run(new Task.Backgroundable(project, "Generating Call Graph") {
                     public void run(@NotNull ProgressIndicator progressIndicator) {
                         ApplicationManager.getApplication().runReadAction(() -> {
-                            CallGraphGenerator generator = new CallGraphGenerator(method);
+                            generator = new CallGraphGenerator(method);
                             String graph = generator.generate();
-                            browser.getCefBrowser().executeJavaScript(String.format("network.setData(%s)", graph), browser.getCefBrowser().getURL(), 0);
+                            browser.getCefBrowser().executeJavaScript(String.format("updateNetwork(%s)", graph), browser.getCefBrowser().getURL(), 0);
                         });
                     }
                 });
