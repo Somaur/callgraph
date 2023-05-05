@@ -1,10 +1,12 @@
 package callgraph.callgraph;
 
+import com.intellij.psi.PsiClass;
 import com.intellij.psi.PsiElement;
 import com.intellij.psi.PsiMethod;
 import com.intellij.psi.PsiReference;
 import com.intellij.psi.search.searches.MethodReferencesSearch;
 import com.intellij.psi.search.searches.ReferencesSearch;
+import com.intellij.psi.util.PsiMethodUtil;
 import com.intellij.psi.util.PsiTreeUtil;
 import org.json.simple.JSONArray;
 import org.json.simple.JSONObject;
@@ -29,7 +31,6 @@ public class CallGraphGenerator {
 
         JSONObject mainNode = createMethodNode(mainMethod, 0);
         mainNode.put("shape", "circle");
-        mainNode.put("fixed", true);
 
         createGroupIfNotExists(mainMethod);
 
@@ -51,9 +52,14 @@ public class CallGraphGenerator {
         groups.clear();
     }
 
-    // todo: methods that are implemented from interfaces and used from interface reference are not shown, fix this
     private void findAndAddCallers(PsiMethod method, int depth) {
         Collection<PsiReference> allReferences = ReferencesSearch.search(method).findAll();
+        for (PsiClass anInterface : method.getContainingClass().getInterfaces()) {
+            PsiMethod methodBySignature = anInterface.findMethodBySignature(method, false);
+            if (methodBySignature != null) {
+                allReferences.addAll(ReferencesSearch.search(methodBySignature).findAll());
+            }
+        }
         for (PsiReference reference : allReferences) {
             PsiElement element = reference.getElement();
             PsiMethod caller = PsiTreeUtil.getParentOfType(element, PsiMethod.class);
@@ -107,6 +113,13 @@ public class CallGraphGenerator {
             String randomColorFromPalette = Utils.getRandomColorFromPalette();
             color.put("background", randomColorFromPalette);
             color.put("border", randomColorFromPalette);
+
+            JSONObject hoverAndHighlightColor = new JSONObject();
+            hoverAndHighlightColor.put("background", Utils.darkenHexColor(randomColorFromPalette, 0.1));
+            hoverAndHighlightColor.put("border", Utils.darkenHexColor(randomColorFromPalette, 0.2));
+
+            color.put("highlight", hoverAndHighlightColor);
+            color.put("hover", hoverAndHighlightColor);
 
             JSONObject font = new JSONObject();
             font.put("color", Utils.getTextColorFromBackground(randomColorFromPalette));

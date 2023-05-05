@@ -43,4 +43,20 @@ public final class Utils {
         double yiq = ((r * 299) + (g * 587) + (b * 114)) / 1000;
         return (yiq >= 128) ? "#000000" : "#ffffff";
     }
+
+    public static String darkenHexColor(String hexColor, double percent) {
+        // Parse the hex color string to an RGB color
+        int red = Integer.parseInt(hexColor.substring(1, 3), 16);
+        int green = Integer.parseInt(hexColor.substring(3, 5), 16);
+        int blue = Integer.parseInt(hexColor.substring(5, 7), 16);
+
+        // Calculate the darker RGB values using the percentage
+        red = (int) (red * (1 - percent));
+        green = (int) (green * (1 - percent));
+        blue = (int) (blue * (1 - percent));
+
+        // Convert the darker RGB values back to a hex color string
+        String darkerHexColor = String.format("#%02X%02X%02X", red, green, blue);
+        return darkerHexColor;
+    }
 }

@@ -31,16 +31,17 @@ var options = {
     },
     interaction: {
         zoomSpeed: 0.25,
+        hover: true
     },
     physics:{
-        enabled: true,
+        enabled: false,
         barnesHut: {
             theta: 0.5,
             gravitationalConstant: -3000,
-            centralGravity: 0,
             springLength: 120,
             springConstant: 0.04,
-            damping: 0.09
+            damping: 0.09,
+            avoidOverlap: 0.5
         },
         solver: 'barnesHut'
     }
@@ -57,6 +58,7 @@ function updateNetwork(data) {
     options.groups = data.groups;
     network.setOptions(options);
     network.setData(data);
+    network.stabilize();
 }
 </script>
 </body>
