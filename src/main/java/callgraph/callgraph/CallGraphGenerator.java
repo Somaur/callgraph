@@ -12,22 +12,24 @@ import org.json.simple.JSONArray;
 import org.json.simple.JSONObject;
 
 import java.util.Collection;
+import java.util.HashMap;
 
 public class CallGraphGenerator {
-    private final PsiMethod mainMethod;
     private final JSONArray nodes;
     private final JSONArray edges;
     private final JSONObject groups;
+    private final HashMap<Integer, PsiElement> references = new HashMap<>();
 
-    public CallGraphGenerator(PsiMethod mainMethod) {
-        this.mainMethod = mainMethod;
+    public CallGraphGenerator() {
         this.nodes = new JSONArray();
         this.edges = new JSONArray();
         this.groups = new JSONObject();
     }
 
-    public String generate() {
+    public String generate(PsiMethod mainMethod) {
         clear();
+
+        references.put(mainMethod.hashCode(), mainMethod);
 
         JSONObject mainNode = createMethodNode(mainMethod, 0);
         mainNode.put("shape", "circle");
@@ -50,6 +52,7 @@ public class CallGraphGenerator {
         nodes.clear();
         edges.clear();
         groups.clear();
+        references.clear();
     }
 
     private void findAndAddCallers(PsiMethod method, int depth) {
@@ -69,6 +72,7 @@ public class CallGraphGenerator {
             final boolean nodeNotExists = nodes.stream().noneMatch(node -> ((JSONObject) node).get("id").equals(caller.hashCode()));
 
             if (nodeNotExists) {
+                references.put(caller.hashCode(), reference.getElement());
                 JSONObject callerNode = createMethodNode(caller, depth);
                 nodes.add(callerNode);
                 createGroupIfNotExists(caller);
@@ -129,5 +133,9 @@ public class CallGraphGenerator {
 
             groups.put(method.getContainingClass().getQualifiedName(), group);
         }
+    }
+
+    public PsiElement getReference(Integer hashCode) {
+        return references.get(hashCode);
     }
 }

@@ -48,9 +48,9 @@ var options = {
 };
 
 var network = new vis.Network(container, {}, options);
-network.on("selectNode", function (params) {
+network.on("click", function (params) {
     if (params.nodes.length == 1) {
-
+        JavaBridge.goToSource(params.nodes[0]);
     }
 });
 
