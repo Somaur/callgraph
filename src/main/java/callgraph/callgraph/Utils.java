@@ -9,7 +9,9 @@ import java.util.stream.Collectors;
 public final class Utils {
     private static final String[] colorPalette = {
             "#FF0000", "#FFA500", "#FFFF00", "#008000", "#00FFFF", "#0000FF",
-            "#800080", "#FF00FF", "#FFC0CB", "#FFD700", "#8B4513", "#808080"
+            "#800080", "#FF00FF", "#FFC0CB", "#FFD700", "#8B4513", "#808080",
+            "#FF69B4", "#00FF00", "#FF4500", "#000080", "#800000", "#FFDAB9",
+            "#6495ED", "#FF6347", "#ADFF2F", "#9932CC", "#FA8072", "#F0E68C"
     };
 
     private static int colorIndex = 0;
