@@ -36,8 +36,8 @@ public final class CallGraphToolWindowFactory implements ToolWindowFactory {
 
     @Override
     public void createToolWindowContent(@NotNull Project project, @NotNull ToolWindow toolWindow) {
-        JBCefBrowser browser = new JBCefBrowser();
-        browser.loadHTML(loadHtmlFile());
+        BrowserManager browserManager = BrowserManager.getInstance();
+        JBCefBrowser browser = browserManager.getJBCefBrowser();
 
         JBCefJSQuery goToSourceQuery = JBCefJSQuery.create((JBCefBrowserBase) browser);
         goToSourceQuery.addHandler((nodeHashCode) -> {
@@ -54,18 +54,13 @@ public final class CallGraphToolWindowFactory implements ToolWindowFactory {
             @Override
             public void onLoadEnd(CefBrowser browser, CefFrame frame, int httpStatusCode) {
                 super.onLoadEnd(browser, frame, httpStatusCode);
-                browser.executeJavaScript(
-                        "window.JavaBridge = {" +
-                                "goToSource : function(nodeHashCode) {" +
+                browserManager.executeJavaScript("window.JavaBridge = {" +
+                            "goToSource : function(nodeHashCode) {" +
                                 goToSourceQuery.inject("nodeHashCode") +
-                                "}" +
-                                "};",
-                        browser.getURL(), 0);
+                            "}" +
+                        "};");
             }
         }, browser.getCefBrowser());
-
-        Disposer.register(project, browser);
-        Disposer.register(browser, goToSourceQuery);
 
         JComponent component = browser.getComponent();
         Content content = toolWindow.getContentManager().getFactory().createContent(component, null, false);
@@ -75,6 +70,7 @@ public final class CallGraphToolWindowFactory implements ToolWindowFactory {
         AnAction updateGraphAction = new AnAction("Update Graph") {
             @Override
             public void actionPerformed(@NotNull AnActionEvent event) {
+                browserManager.showMessage("Generating graph nodes...");
                 Editor editor = FileEditorManager.getInstance(project).getSelectedTextEditor();
                 PsiFile psiFile = PsiDocumentManager.getInstance(project).getPsiFile(editor.getDocument());
                 int offset = editor.getCaretModel().getOffset();
@@ -86,7 +82,8 @@ public final class CallGraphToolWindowFactory implements ToolWindowFactory {
                     public void run(@NotNull ProgressIndicator progressIndicator) {
                         ApplicationManager.getApplication().runReadAction(() -> {
                             String graph = generator.generate(method);
-                            browser.getCefBrowser().executeJavaScript(String.format("updateNetwork(%s)", graph), browser.getCefBrowser().getURL(), 0);
+                            browserManager.showMessage("Sending graph to embedded browser...");
+                            browserManager.updateNetwork(graph);
                         });
                     }
                 });
@@ -96,14 +93,5 @@ public final class CallGraphToolWindowFactory implements ToolWindowFactory {
         DefaultActionGroup actionGroup = new DefaultActionGroup();
         actionGroup.add(updateGraphAction);
         toolWindow.setTitleActions(List.of(actionGroup));
-    }
-
-    private String loadHtmlFile() {
-        try {
-            return Utils.getResourceFileAsString("callgraph.html");
-        } catch (Exception e) {
-            e.printStackTrace();
-            return "";
-        }
     }
 }

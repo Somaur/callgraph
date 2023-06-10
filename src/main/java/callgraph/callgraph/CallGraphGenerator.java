@@ -1,5 +1,6 @@
 package callgraph.callgraph;
 
+import com.intellij.openapi.editor.Document;
 import com.intellij.psi.*;
 import com.intellij.psi.search.searches.ReferencesSearch;
 import com.intellij.psi.util.PsiTreeUtil;
@@ -51,6 +52,7 @@ public class CallGraphGenerator {
     }
 
     private void findAndAddCallers(PsiMethod method, int depth) {
+        BrowserManager.getInstance().showMessage("Collecting the callers of " + method.getContainingClass().getQualifiedName() + "." + method.getName());
         Collection<PsiReference> allReferences = ReferencesSearch.search(method).findAll();
         for (PsiClass anInterface : method.getContainingClass().getInterfaces()) {
             PsiMethod methodBySignature = anInterface.findMethodBySignature(method, false);
@@ -63,8 +65,7 @@ public class CallGraphGenerator {
             PsiMethod caller = PsiTreeUtil.getParentOfType(element, PsiMethod.class);
             if (caller == null || caller.equals(method) || !caller.getProject().equals(method.getProject())) continue;
 
-            // todo: this should be slow, find a better way to do this (maybe use a map?)
-            final boolean nodeNotExists = nodes.stream().noneMatch(node -> ((JSONObject) node).get("id").equals(caller.hashCode()));
+            final boolean nodeNotExists = !references.containsKey(caller.hashCode());
 
             if (nodeNotExists) {
                 references.put(caller.hashCode(), reference.getElement());
@@ -73,16 +74,20 @@ public class CallGraphGenerator {
                 createGroupIfNotExists(caller);
             }
 
-            // todo: this should be slow, find a better way to do this (maybe use a map?)
-            final boolean edgeNotExists = edges.stream().noneMatch(edge -> {
-                JSONObject edgeObject = (JSONObject) edge;
-                return edgeObject.get("from").equals(caller.hashCode()) && edgeObject.get("to").equals(method.hashCode());
-            });
+            final boolean edgeNotExists = !references.containsKey(element.hashCode());
 
             if (edgeNotExists) {
+                references.put(element.hashCode(), reference.getElement());
                 JSONObject edge = new JSONObject();
+                edge.put("id", element.hashCode());
                 edge.put("from", caller.hashCode());
                 edge.put("to", method.hashCode());
+
+                PsiFile file = element.getContainingFile();
+                Document document = file.getViewProvider().getDocument();
+                int lineNumber = document.getLineNumber(element.getTextOffset()) + 1;
+                edge.put("label", ":"+ lineNumber);
+
                 edges.add(edge);
             }
 

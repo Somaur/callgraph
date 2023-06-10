@@ -11,10 +11,23 @@
             width: 100%;
             height: 100%;
             background: black;
+            font-family: Arial,serif;
+        }
+        .centeredMessage {
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            color: white;
+            font-size: 2em;
+        }
+        .hidden {
+            display: none;
         }
     </style>
 </head>
 <body>
+<div class="centeredMessage hidden"></div>
 <div id="network"></div>
 <script type="text/javascript">
 var container = document.getElementById("network");
@@ -57,12 +70,36 @@ network.on("click", function (params) {
     }
 });
 
+function showMessage(message) {
+    var messageElement = document.getElementsByClassName("centeredMessage")[0];
+    messageElement.innerHTML = message;
+    messageElement.classList.remove("hidden");
+}
+
+function hideMessage() {
+    var messageElement = document.getElementsByClassName("centeredMessage")[0];
+    messageElement.classList.add("hidden");
+}
+
+showMessage("Click on 'Generate Graph' to generate a call graph.");
+
 function updateNetwork(data) {
+    showMessage("Rendering graph...");
     options.groups = data.groups;
     network.setOptions(options);
     network.setData(data);
     network.stabilize();
 }
+
+network.on("stabilizationProgress", function(params) {
+    var message = "Stabilization progress: " + Math.round(params.iterations / params.total * 100) + "%";
+    showMessage(message);
+});
+
+network.on("stabilizationIterationsDone", function() {
+    hideMessage();
+});
+
 </script>
 </body>
 </html>
