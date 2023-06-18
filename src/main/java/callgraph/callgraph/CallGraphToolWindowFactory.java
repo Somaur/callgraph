@@ -39,12 +39,10 @@ public final class CallGraphToolWindowFactory implements ToolWindowFactory {
         JBCefBrowser browser = browserManager.getJBCefBrowser();
 
         JBCefJSQuery goToSourceQuery = JBCefJSQuery.create((JBCefBrowserBase) browser);
-        goToSourceQuery.addHandler((nodeHashCode) -> {
+        goToSourceQuery.addHandler(nodeHashCode -> {
             PsiElement element = generator.getReference(Integer.parseInt(nodeHashCode));
             if (element != null) {
-                ApplicationManager.getApplication().invokeLater(() -> {
-                    NavigationUtil.activateFileWithPsiElement(element);
-                });
+                ApplicationManager.getApplication().invokeLater(() -> NavigationUtil.activateFileWithPsiElement(element));
             }
             return null;
         });

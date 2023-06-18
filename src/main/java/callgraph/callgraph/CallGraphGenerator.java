@@ -84,7 +84,6 @@ public class CallGraphGenerator {
             }
 
             // tried to avoid stackoverflows for methods that call each other recursively, not sure if this works, seems like so
-            // todo: check properly if this works
             if (nodeNotExists || edgeNotExists) {
                 findAndAddCallers(caller, depth + 1);
             }
