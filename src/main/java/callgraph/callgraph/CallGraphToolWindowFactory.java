@@ -32,6 +32,7 @@ import java.util.List;
 
 public final class CallGraphToolWindowFactory implements ToolWindowFactory {
     private CallGraphGenerator generator;
+    private CallGraphGenerateAction generateAction;
 
     @Override
     public void createToolWindowContent(@NotNull Project project, @NotNull ToolWindow toolWindow) {
@@ -64,31 +65,10 @@ public final class CallGraphToolWindowFactory implements ToolWindowFactory {
         toolWindow.getContentManager().addContent(content);
 
         generator = new CallGraphGenerator();
-        AnAction updateGraphAction = new AnAction("Update Graph") {
-            @Override
-            public void actionPerformed(@NotNull AnActionEvent event) {
-                browserManager.showMessage("Generating graph nodes...");
-                Editor editor = FileEditorManager.getInstance(project).getSelectedTextEditor();
-                PsiFile psiFile = PsiDocumentManager.getInstance(project).getPsiFile(editor.getDocument());
-                int offset = editor.getCaretModel().getOffset();
-                PsiElement element = psiFile.findElementAt(offset);
-                PsiMethod method = PsiTreeUtil.getParentOfType(element, PsiMethod.class);
-
-                // Do the graph creation in separate thread with progress bar
-                ProgressManager.getInstance().run(new Task.Backgroundable(project, "Generating Call Graph") {
-                    public void run(@NotNull ProgressIndicator progressIndicator) {
-                        ApplicationManager.getApplication().runReadAction(() -> {
-                            String graph = generator.generate(method);
-                            browserManager.showMessage("Sending graph to embedded browser...");
-                            browserManager.updateNetwork(graph);
-                        });
-                    }
-                });
-            }
-        };
+        generateAction = new CallGraphGenerateAction(project, browserManager, generator);
 
         DefaultActionGroup actionGroup = new DefaultActionGroup();
-        actionGroup.add(updateGraphAction);
+        actionGroup.add(generateAction);
         toolWindow.setTitleActions(List.of(actionGroup));
     }
 }
