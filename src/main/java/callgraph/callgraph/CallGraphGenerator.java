@@ -4,6 +4,7 @@ import com.intellij.openapi.editor.Document;
 import com.intellij.psi.*;
 import com.intellij.psi.search.searches.ReferencesSearch;
 import com.intellij.psi.util.PsiTreeUtil;
+import org.jetbrains.annotations.NotNull;
 import org.json.simple.JSONArray;
 import org.json.simple.JSONObject;
 
@@ -61,8 +62,8 @@ public class CallGraphGenerator {
             }
         }
         for (PsiReference reference : allReferences) {
-            PsiElement element = reference.getElement();
-            PsiMethod caller = PsiTreeUtil.getParentOfType(element, PsiMethod.class);
+            PsiElement callReference = reference.getElement();
+            PsiMethod caller = PsiTreeUtil.getParentOfType(callReference, PsiMethod.class);
             if (caller == null || caller.equals(method) || !caller.getProject().equals(method.getProject())) continue;
 
             final boolean nodeNotExists = !references.containsKey(caller.hashCode());
@@ -74,20 +75,11 @@ public class CallGraphGenerator {
                 createGroupIfNotExists(caller);
             }
 
-            final boolean edgeNotExists = !references.containsKey(element.hashCode());
+            final boolean edgeNotExists = !references.containsKey(callReference.hashCode());
 
             if (edgeNotExists) {
-                references.put(element.hashCode(), reference.getElement());
-                JSONObject edge = new JSONObject();
-                edge.put("id", element.hashCode());
-                edge.put("from", caller.hashCode());
-                edge.put("to", method.hashCode());
-
-                PsiFile file = element.getContainingFile();
-                Document document = file.getViewProvider().getDocument();
-                int lineNumber = document.getLineNumber(element.getTextOffset()) + 1;
-                edge.put("label", ":"+ lineNumber);
-
+                references.put(callReference.hashCode(), reference.getElement());
+                JSONObject edge = createEdge(method, callReference, caller);
                 edges.add(edge);
             }
 
@@ -97,6 +89,24 @@ public class CallGraphGenerator {
                 findAndAddCallers(caller, depth + 1);
             }
         }
+    }
+
+    @NotNull
+    private JSONObject createEdge(PsiMethod method, PsiElement element, PsiMethod caller) {
+        JSONObject edge = new JSONObject();
+        edge.put("id", element.hashCode());
+        edge.put("from", caller.hashCode());
+        edge.put("to", method.hashCode());
+
+        PsiFile file = element.getContainingFile();
+        Document document = file.getViewProvider().getDocument();
+        int lineNumber = document.getLineNumber(element.getTextOffset()) + 1;
+        edge.put("label", ":"+ lineNumber);
+
+        JSONObject group = getGroup(caller);
+        edge.put("font", group.get("font"));
+
+        return edge;
     }
 
     private JSONObject createMethodNode(PsiMethod method, int depth) {
@@ -182,12 +192,17 @@ public class CallGraphGenerator {
 
             JSONObject font = new JSONObject();
             font.put("color", Utils.getTextColorFromBackground(randomColorFromPalette));
+            font.put("strokeColor", randomColorFromPalette);
 
             group.put("color", color);
             group.put("font", font);
 
             groups.put(method.getContainingClass().getQualifiedName(), group);
         }
+    }
+
+    private JSONObject getGroup(PsiMethod method) {
+        return (JSONObject) groups.get(method.getContainingClass().getQualifiedName());
     }
 
     public PsiElement getReference(Integer hashCode) {

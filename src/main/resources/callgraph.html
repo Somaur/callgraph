@@ -44,6 +44,10 @@ var options = {
                 enabled: true
             },
         },
+        font: {
+            strokeWidth: 5,
+            size: 12
+        },
     },
     interaction: {
         zoomSpeed: 0.25,
@@ -67,6 +71,9 @@ var network = new vis.Network(container, {}, options);
 network.on("click", function (params) {
     if (params.nodes.length == 1) {
         JavaBridge.goToSource(params.nodes[0]);
+    }
+    if (params.edges.length == 1) {
+        JavaBridge.goToSource(params.edges[0]);
     }
 });
 
