@@ -12,6 +12,7 @@
             height: 100%;
             background: black;
             font-family: Arial,serif;
+            margin: 0;
         }
         .centeredMessage {
             position: absolute;
@@ -22,7 +23,7 @@
             font-size: 2em;
         }
         .hidden {
-            display: none;
+            display: none !important;
         }
         .navbar {
             position: absolute;
@@ -53,14 +54,18 @@
             background: #FFF;
             font-weight: bold;
         }
+        .navbutton-green:hover {
+            background-color: #2ab63c;
+        }
     </style>
 </head>
 <body>
     <div id="message" class="centeredMessage hidden"></div>
     <div id="network"></div>
-    <div class="navbar">
-        <button class="navbutton" onclick="fit()">FIT</button>
-        <button class="navbutton" onclick="window.JavaBridge.saveAsHtml()">SAVE AS HTML</button>
+    <div id="navbar" class="navbar">
+        <button class="navbutton navbutton-green" onclick="JavaBridge.generateGraph()">GENERATE</button>
+        <button class="navbutton generatedGraphController hidden" onclick="fit()">FIT</button>
+        <button class="navbutton generatedGraphController hidden" onclick="JavaBridge.saveAsHtml()">SAVE AS HTML</button>
     </div>
 </body>
 <script type="text/javascript">
@@ -104,7 +109,11 @@
         }
     };
 
-    window.JavaBridge = {}
+    window.JavaBridge = {
+        goToSource: (referenceHashCode)=>{},
+        saveAsHtml: (unused)=>{},
+        generateGraph: (unused)=>{}
+    }
 
     const messageElement = document.getElementById("message");
     const networkElement = document.getElementById("network");
@@ -130,14 +139,31 @@
         networkElement.classList.remove("hidden");
     }
 
+    function showGraphControls() {
+        for (let generatedGraphController of document.getElementsByClassName("generatedGraphController")) {
+            generatedGraphController.classList.remove("hidden");
+        }
+    }
+
+    function hideGraphControls() {
+        for (let generatedGraphController of document.getElementsByClassName("generatedGraphController")) {
+            generatedGraphController.classList.add("hidden");
+        }
+    }
+
     showMessage("Click on 'Generate Graph' to generate a call graph.");
 
     function updateNetwork(data) {
+        hideGraphControls();
         showMessage("Rendering graph...");
-        options.groups = data.groups;
-        network.setOptions(options);
-        network.setData(data);
-        network.stabilize();
+        try {
+            options.groups = data.groups;
+            network.setOptions(options);
+            network.setData(data);
+            network.stabilize();
+        } catch (e) {
+            showMessage(e);
+        }
     }
 
     network.on("stabilizationProgress", function(params) {
@@ -148,6 +174,7 @@
     network.on("stabilizationIterationsDone", function() {
         hideMessage();
         fit();
+        showGraphControls();
     });
 
     function fit() {
