@@ -27,86 +27,92 @@
     </style>
 </head>
 <body>
-<div class="centeredMessage hidden"></div>
+<div id="message" class="centeredMessage hidden"></div>
 <div id="network"></div>
+</body>
 <script type="text/javascript">
-var container = document.getElementById("network");
-var options = {
-    nodes: {
-        shape: "box",
-        font: {
-            multi: "md"
-        }
-    },
-    edges: {
-        arrows: {
-            to: {
-                enabled: true
+    var container = document.getElementById("network");
+    var options = {
+        nodes: {
+            shape: "box",
+            font: {
+                multi: "md"
+            }
+        },
+        edges: {
+            arrows: {
+                to: {
+                    enabled: true
+                },
+            },
+            font: {
+                strokeWidth: 5,
+                size: 12
             },
         },
-        font: {
-            strokeWidth: 5,
-            size: 12
+        interaction: {
+            zoomSpeed: 0.25,
+            hover: true
         },
-    },
-    interaction: {
-        zoomSpeed: 0.25,
-        hover: true
-    },
-    physics:{
-        enabled: false,
-        barnesHut: {
-            theta: 0.5,
-            gravitationalConstant: -3000,
-            springLength: 120,
-            springConstant: 0.04,
-            damping: 0.09,
-            avoidOverlap: 0.5
+        physics:{
+            enabled: false,
+            barnesHut: {
+                theta: 0.5,
+                gravitationalConstant: -3000,
+                springLength: 120,
+                springConstant: 0.04,
+                damping: 0.09,
+                avoidOverlap: 0.5
+            },
+            solver: 'barnesHut'
         },
-        solver: 'barnesHut'
+        layout: {
+            randomSeed: 0
+        }
+    };
+
+    var network = new vis.Network(container, {}, options);
+    network.on("click", function (params) {
+        if (params.nodes.length == 1) {
+            JavaBridge.goToSource(params.nodes[0]);
+        }
+        if (params.edges.length == 1) {
+            JavaBridge.goToSource(params.edges[0]);
+        }
+    });
+
+    const messageElement = document.getElementById("message");
+    const networkElement = document.getElementById("network");
+
+    function showMessage(message) {
+        messageElement.innerHTML = message;
+        messageElement.classList.remove("hidden");
+        networkElement.classList.add("hidden");
     }
-};
 
-var network = new vis.Network(container, {}, options);
-network.on("click", function (params) {
-    if (params.nodes.length == 1) {
-        JavaBridge.goToSource(params.nodes[0]);
+    function hideMessage() {
+        messageElement.classList.add("hidden");
+        networkElement.classList.remove("hidden");
     }
-    if (params.edges.length == 1) {
-        JavaBridge.goToSource(params.edges[0]);
+
+    showMessage("Click on 'Generate Graph' to generate a call graph.");
+
+    function updateNetwork(data) {
+        showMessage("Rendering graph...");
+        options.groups = data.groups;
+        network.setOptions(options);
+        network.setData(data);
+        network.stabilize();
     }
-});
 
-function showMessage(message) {
-    var messageElement = document.getElementsByClassName("centeredMessage")[0];
-    messageElement.innerHTML = message;
-    messageElement.classList.remove("hidden");
-}
+    network.on("stabilizationProgress", function(params) {
+        var message = "Stabilization progress: " + Math.round(params.iterations / params.total * 100) + "%";
+        showMessage(message);
+    });
 
-function hideMessage() {
-    var messageElement = document.getElementsByClassName("centeredMessage")[0];
-    messageElement.classList.add("hidden");
-}
-
-showMessage("Click on 'Generate Graph' to generate a call graph.");
-
-function updateNetwork(data) {
-    showMessage("Rendering graph...");
-    options.groups = data.groups;
-    network.setOptions(options);
-    network.setData(data);
-    network.stabilize();
-}
-
-network.on("stabilizationProgress", function(params) {
-    var message = "Stabilization progress: " + Math.round(params.iterations / params.total * 100) + "%";
-    showMessage(message);
-});
-
-network.on("stabilizationIterationsDone", function() {
-    hideMessage();
-});
-
+    network.on("stabilizationIterationsDone", function() {
+        hideMessage();
+        network.fit();
+    });
 </script>
-</body>
 </html>
