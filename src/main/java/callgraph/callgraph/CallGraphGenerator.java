@@ -18,6 +18,7 @@ public class CallGraphGenerator {
     private final JSONArray edges;
     private final JSONObject groups;
     private final HashMap<Integer, PsiElement> references = new HashMap<>();
+    private PsiMethod lastGeneratedMethod;
 
     private CallGraphGenerator() {
         this.nodes = new JSONArray();
@@ -36,6 +37,7 @@ public class CallGraphGenerator {
         BrowserManager.getInstance().showMessage("Clearing the graph...");
         clear();
 
+        lastGeneratedMethod = mainMethod;
         references.put(mainMethod.hashCode(), mainMethod);
 
         JSONObject mainNode = createMethodNode(mainMethod, 0);
@@ -49,6 +51,10 @@ public class CallGraphGenerator {
 
         BrowserManager.getInstance().showMessage("Collecting the callers completed. Generating the graph...");
 
+        return getJson();
+    }
+
+    public String getJson() {
         JSONObject graph = new JSONObject();
         graph.put("nodes", nodes);
         graph.put("edges", edges);
@@ -211,5 +217,9 @@ public class CallGraphGenerator {
 
     public PsiElement getReference(Integer hashCode) {
         return references.get(hashCode);
+    }
+
+    public PsiMethod getLastGeneratedMethod() {
+        return lastGeneratedMethod;
     }
 }

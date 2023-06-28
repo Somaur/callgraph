@@ -8,6 +8,7 @@ import com.intellij.openapi.project.Project;
 import com.intellij.openapi.project.ProjectManager;
 import com.intellij.openapi.vfs.VirtualFile;
 import com.intellij.psi.PsiElement;
+import com.intellij.psi.PsiMethod;
 import com.intellij.ui.jcef.JBCefBrowser;
 import com.intellij.ui.jcef.JBCefBrowserBase;
 import com.intellij.ui.jcef.JBCefJSQuery;
@@ -71,7 +72,15 @@ public class BrowserManager {
             Project project = ProjectManager.getInstance().getOpenProjects()[0];
             ApplicationManager.getApplication().invokeLater(() -> FileChooser.chooseFile(descriptor, project, null, (VirtualFile file) -> {
                 try {
-                    Utils.writeToFile(file.getPath() + "/graph.html", Utils.getResourceFileAsString("callgraph.html"));
+                    String saveAsTemplate = Utils.getResourceFileAsString("saveas_template.html");
+                    PsiMethod lastGeneratedMethod = CallGraphGenerator.getInstance().getLastGeneratedMethod();
+                    String className = lastGeneratedMethod.getContainingClass().getName();
+                    String methodName = lastGeneratedMethod.getName();
+                    String methodPath = className + "." + methodName;
+                    String title = "Call Graph of " + project.getName() + " - " + methodPath;
+                    saveAsTemplate = saveAsTemplate.replace("${title}", title);
+                    saveAsTemplate = saveAsTemplate.replace("${data}", CallGraphGenerator.getInstance().getJson());
+                    Utils.writeToFile(file.getPath() + "/callgraph_" + project.getName() + "_" + className + "_" + methodName + ".html", saveAsTemplate);
                 } catch (IOException e) {
                     throw new RuntimeException(e);
                 }
