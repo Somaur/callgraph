@@ -30,7 +30,6 @@ public class CallGraphGenerateAction extends AnAction {
 
     @Override
     public void actionPerformed(@NotNull AnActionEvent event) {
-        browserManager.showMessage("Generating graph nodes...");
         Editor editor = FileEditorManager.getInstance(project).getSelectedTextEditor();
         PsiFile psiFile = PsiDocumentManager.getInstance(project).getPsiFile(editor.getDocument());
         int offset = editor.getCaretModel().getOffset();

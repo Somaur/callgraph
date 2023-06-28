@@ -11,6 +11,7 @@ import org.json.simple.JSONObject;
 import java.util.Collection;
 import java.util.HashMap;
 
+@SuppressWarnings("unchecked")
 public class CallGraphGenerator {
     private final JSONArray nodes;
     private final JSONArray edges;
@@ -24,6 +25,7 @@ public class CallGraphGenerator {
     }
 
     public String generate(PsiMethod mainMethod) {
+        BrowserManager.getInstance().showMessage("Clearing the graph...");
         clear();
 
         references.put(mainMethod.hashCode(), mainMethod);
@@ -36,6 +38,8 @@ public class CallGraphGenerator {
         nodes.add(mainNode);
 
         findAndAddCallers(mainMethod, 1);
+
+        BrowserManager.getInstance().showMessage("Collecting the callers completed. Generating the graph...");
 
         JSONObject graph = new JSONObject();
         graph.put("nodes", nodes);
@@ -53,7 +57,6 @@ public class CallGraphGenerator {
     }
 
     private void findAndAddCallers(PsiMethod method, int depth) {
-        BrowserManager.getInstance().showMessage("Collecting the callers of " + method.getContainingClass().getQualifiedName() + "." + method.getName());
         Collection<PsiReference> allReferences = ReferencesSearch.search(method).findAll();
         for (PsiClass anInterface : method.getContainingClass().getInterfaces()) {
             PsiMethod methodBySignature = anInterface.findMethodBySignature(method, false);
@@ -64,7 +67,8 @@ public class CallGraphGenerator {
         for (PsiReference reference : allReferences) {
             PsiElement callReference = reference.getElement();
             PsiMethod caller = PsiTreeUtil.getParentOfType(callReference, PsiMethod.class);
-            if (caller == null || caller.equals(method) || !caller.getProject().equals(method.getProject())) continue;
+            if (references.containsKey(callReference.hashCode())) continue;
+            if (caller == null || !caller.getProject().equals(method.getProject())) continue;
 
             final boolean nodeNotExists = !references.containsKey(caller.hashCode());
 
@@ -75,18 +79,11 @@ public class CallGraphGenerator {
                 createGroupIfNotExists(caller);
             }
 
-            final boolean edgeNotExists = !references.containsKey(callReference.hashCode());
+            references.put(callReference.hashCode(), reference.getElement());
+            JSONObject edge = createEdge(method, callReference, caller);
+            edges.add(edge);
 
-            if (edgeNotExists) {
-                references.put(callReference.hashCode(), reference.getElement());
-                JSONObject edge = createEdge(method, callReference, caller);
-                edges.add(edge);
-            }
-
-            // tried to avoid stackoverflows for methods that call each other recursively, not sure if this works, seems like so
-            if (nodeNotExists || edgeNotExists) {
-                findAndAddCallers(caller, depth + 1);
-            }
+            findAndAddCallers(caller, depth + 1);
         }
     }
 
@@ -100,7 +97,7 @@ public class CallGraphGenerator {
         PsiFile file = element.getContainingFile();
         Document document = file.getViewProvider().getDocument();
         int lineNumber = document.getLineNumber(element.getTextOffset()) + 1;
-        edge.put("label", ":"+ lineNumber);
+        edge.put("label", ":" + lineNumber);
 
         JSONObject group = getGroup(caller);
         edge.put("font", group.get("font"));
