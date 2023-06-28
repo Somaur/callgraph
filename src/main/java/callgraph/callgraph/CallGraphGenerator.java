@@ -13,15 +13,23 @@ import java.util.HashMap;
 
 @SuppressWarnings("unchecked")
 public class CallGraphGenerator {
+    private static CallGraphGenerator instance;
     private final JSONArray nodes;
     private final JSONArray edges;
     private final JSONObject groups;
     private final HashMap<Integer, PsiElement> references = new HashMap<>();
 
-    public CallGraphGenerator() {
+    private CallGraphGenerator() {
         this.nodes = new JSONArray();
         this.edges = new JSONArray();
         this.groups = new JSONObject();
+    }
+
+    public static CallGraphGenerator getInstance() {
+        if (instance == null) {
+            instance = new CallGraphGenerator();
+        }
+        return instance;
     }
 
     public String generate(PsiMethod mainMethod) {

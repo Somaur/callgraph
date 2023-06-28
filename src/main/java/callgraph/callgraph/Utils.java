@@ -1,9 +1,6 @@
 package callgraph.callgraph;
 
-import java.io.BufferedReader;
-import java.io.IOException;
-import java.io.InputStream;
-import java.io.InputStreamReader;
+import java.io.*;
 import java.util.stream.Collectors;
 
 public final class Utils {
@@ -62,5 +59,14 @@ public final class Utils {
 
         // Convert the darker RGB values back to a hex color string
         return String.format("#%02X%02X%02X", red, green, blue);
+    }
+
+    public static void writeToFile(String fileName, String content) throws IOException {
+        File file = new File(fileName);
+        file.getParentFile().mkdirs();
+        file.createNewFile();
+        FileWriter writer = new FileWriter(file);
+        writer.write(content);
+        writer.close();
     }
 }

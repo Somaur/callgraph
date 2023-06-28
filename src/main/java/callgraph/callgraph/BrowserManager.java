@@ -1,6 +1,21 @@
 package callgraph.callgraph;
 
+import com.intellij.codeInsight.navigation.NavigationUtil;
+import com.intellij.openapi.application.ApplicationManager;
+import com.intellij.openapi.fileChooser.FileChooser;
+import com.intellij.openapi.fileChooser.FileChooserDescriptor;
+import com.intellij.openapi.project.Project;
+import com.intellij.openapi.project.ProjectManager;
+import com.intellij.openapi.vfs.VirtualFile;
+import com.intellij.psi.PsiElement;
 import com.intellij.ui.jcef.JBCefBrowser;
+import com.intellij.ui.jcef.JBCefBrowserBase;
+import com.intellij.ui.jcef.JBCefJSQuery;
+import org.cef.browser.CefBrowser;
+import org.cef.browser.CefFrame;
+import org.cef.handler.CefLoadHandlerAdapter;
+
+import java.io.IOException;
 
 public class BrowserManager {
     private static BrowserManager instance;
@@ -8,8 +23,13 @@ public class BrowserManager {
     private final JBCefBrowser browser;
 
     private BrowserManager() {
-        browser = new JBCefBrowser();
-        browser.loadHTML(loadHtmlFile());
+        try {
+            browser = new JBCefBrowser();
+            browser.loadHTML(Utils.getResourceFileAsString("callgraph.html"));
+            createJavaScriptBridge();
+        } catch (IOException e) {
+            throw new RuntimeException(e);
+        }
     }
 
     public static BrowserManager getInstance() {
@@ -35,12 +55,43 @@ public class BrowserManager {
         executeJavaScript("updateNetwork(" + json + ")");
     }
 
-    private String loadHtmlFile() {
-        try {
-            return Utils.getResourceFileAsString("callgraph.html");
-        } catch (Exception e) {
-            e.printStackTrace();
-            return "";
-        }
+    private void createJavaScriptBridge() {
+        JBCefJSQuery goToSourceQuery = JBCefJSQuery.create((JBCefBrowserBase) browser);
+        goToSourceQuery.addHandler(nodeHashCode -> {
+            PsiElement element = CallGraphGenerator.getInstance().getReference(Integer.parseInt(nodeHashCode));
+            if (element != null) {
+                ApplicationManager.getApplication().invokeLater(() -> NavigationUtil.activateFileWithPsiElement(element));
+            }
+            return null;
+        });
+
+        JBCefJSQuery saveAsHtmlQuery = JBCefJSQuery.create((JBCefBrowserBase) browser);
+        saveAsHtmlQuery.addHandler(unused -> {
+            FileChooserDescriptor descriptor = new FileChooserDescriptor(false, true, false, false, false, false);
+            Project project = ProjectManager.getInstance().getOpenProjects()[0];
+            ApplicationManager.getApplication().invokeLater(() -> FileChooser.chooseFile(descriptor, project, null, (VirtualFile file) -> {
+                try {
+                    Utils.writeToFile(file.getPath() + "/graph.html", Utils.getResourceFileAsString("callgraph.html"));
+                } catch (IOException e) {
+                    throw new RuntimeException(e);
+                }
+            }));
+            return null;
+        });
+
+        browser.getJBCefClient().addLoadHandler(new CefLoadHandlerAdapter() {
+            @Override
+            public void onLoadEnd(CefBrowser browser, CefFrame frame, int httpStatusCode) {
+                super.onLoadEnd(browser, frame, httpStatusCode);
+                injectQueryHandler("goToSource", goToSourceQuery, "nodeHashCode");
+                injectQueryHandler("saveAsHtml", saveAsHtmlQuery, "unused");
+            }
+        }, browser.getCefBrowser());
+    }
+
+    private void injectQueryHandler(String handlerName, JBCefJSQuery handler, String argName) {
+        executeJavaScript("window.JavaBridge." + handlerName + " = function(" + argName + ") {" +
+                handler.inject(argName) +
+                "}");
     }
 }

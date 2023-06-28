@@ -2,6 +2,7 @@ package callgraph.callgraph;
 
 import com.intellij.openapi.actionSystem.AnAction;
 import com.intellij.openapi.actionSystem.AnActionEvent;
+import com.intellij.openapi.actionSystem.CommonDataKeys;
 import com.intellij.openapi.application.ApplicationManager;
 import com.intellij.openapi.editor.Editor;
 import com.intellij.openapi.fileEditor.FileEditorManager;
@@ -17,19 +18,18 @@ import com.intellij.psi.util.PsiTreeUtil;
 import org.jetbrains.annotations.NotNull;
 
 public class CallGraphGenerateAction extends AnAction {
-    private final Project project;
     private final BrowserManager browserManager;
     private final CallGraphGenerator generator;
 
-    public CallGraphGenerateAction(Project project, BrowserManager browserManager, CallGraphGenerator generator) {
+    public CallGraphGenerateAction(BrowserManager browserManager, CallGraphGenerator generator) {
         super("Generate Call Graph");
-        this.project = project;
         this.browserManager = browserManager;
         this.generator = generator;
     }
 
     @Override
     public void actionPerformed(@NotNull AnActionEvent event) {
+        Project project = event.getRequiredData(CommonDataKeys.PROJECT);
         Editor editor = FileEditorManager.getInstance(project).getSelectedTextEditor();
         PsiFile psiFile = PsiDocumentManager.getInstance(project).getPsiFile(editor.getDocument());
         int offset = editor.getCaretModel().getOffset();
