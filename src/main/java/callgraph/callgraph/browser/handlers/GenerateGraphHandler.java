@@ -17,18 +17,12 @@ import com.intellij.psi.PsiFile;
 import com.intellij.psi.PsiMethod;
 import com.intellij.psi.util.PsiTreeUtil;
 import com.intellij.ui.jcef.JBCefBrowserBase;
-import com.intellij.ui.jcef.JBCefJSQuery;
 import org.jetbrains.annotations.NotNull;
 
 public class GenerateGraphHandler extends JSQueryHandler {
     public GenerateGraphHandler(JBCefBrowserBase browser) {
         super(browser);
-    }
-
-    @Override
-    public JBCefJSQuery getHandler() {
-        JBCefJSQuery generateGraphQuery = JBCefJSQuery.create(browser);
-        generateGraphQuery.addHandler(unused -> {
+        jsQuery.addHandler(unused -> {
             ApplicationManager.getApplication().invokeLater(() -> {
                 Project project = ProjectManager.getInstance().getOpenProjects()[0];
                 Editor editor = FileEditorManager.getInstance(project).getSelectedTextEditor();
@@ -51,17 +45,17 @@ public class GenerateGraphHandler extends JSQueryHandler {
             });
             return null;
         });
-
-        return generateGraphQuery;
     }
 
     @Override
+    @NotNull
     public String getHandlerName() {
-        return null;
+        return "generateGraph";
     }
 
     @Override
+    @NotNull
     public String getArgName() {
-        return null;
+        return "unused";
     }
 }

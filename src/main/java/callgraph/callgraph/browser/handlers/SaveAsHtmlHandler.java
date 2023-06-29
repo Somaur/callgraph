@@ -11,19 +11,14 @@ import com.intellij.openapi.project.ProjectManager;
 import com.intellij.openapi.vfs.VirtualFile;
 import com.intellij.psi.PsiMethod;
 import com.intellij.ui.jcef.JBCefBrowserBase;
-import com.intellij.ui.jcef.JBCefJSQuery;
+import org.jetbrains.annotations.NotNull;
 
 import java.io.IOException;
 
 public class SaveAsHtmlHandler extends JSQueryHandler {
     public SaveAsHtmlHandler(JBCefBrowserBase browser) {
         super(browser);
-    }
-
-    @Override
-    public JBCefJSQuery getHandler() {
-        JBCefJSQuery saveAsHtmlQuery = JBCefJSQuery.create(browser);
-        saveAsHtmlQuery.addHandler(unused -> {
+        jsQuery.addHandler(unused -> {
             FileChooserDescriptor descriptor = new FileChooserDescriptor(false, true, false, false, false, false);
             Project project = ProjectManager.getInstance().getOpenProjects()[0];
             ApplicationManager.getApplication().invokeLater(() -> FileChooser.chooseFile(descriptor, project, null, (VirtualFile file) -> {
@@ -43,16 +38,16 @@ public class SaveAsHtmlHandler extends JSQueryHandler {
             }));
             return null;
         });
-
-        return saveAsHtmlQuery;
     }
 
     @Override
+    @NotNull
     public String getHandlerName() {
         return "saveAsHtml";
     }
 
     @Override
+    @NotNull
     public String getArgName() {
         return "unused";
     }

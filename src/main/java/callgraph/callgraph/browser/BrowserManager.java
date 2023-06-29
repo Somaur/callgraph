@@ -2,7 +2,6 @@ package callgraph.callgraph.browser;
 
 import callgraph.callgraph.Utils;
 import com.intellij.ui.jcef.JBCefBrowser;
-import com.intellij.ui.jcef.JBCefBrowserBase;
 import com.intellij.ui.jcef.JBCefJSQuery;
 import org.cef.browser.CefBrowser;
 import org.cef.browser.CefFrame;
@@ -50,13 +49,13 @@ public class BrowserManager {
     }
 
     private void createJavaScriptBridge() {
+        List<JSQueryHandler> handlers = new HandlerFactory().getHandlers(browser);
         browser.getJBCefClient().addLoadHandler(new CefLoadHandlerAdapter() {
             @Override
-            public void onLoadEnd(CefBrowser browser, CefFrame frame, int httpStatusCode) {
-                super.onLoadEnd(browser, frame, httpStatusCode);
-                List<JSQueryHandler> handlers = new HandlerFactory().getHandlers((JBCefBrowserBase) browser);
+            public void onLoadEnd(CefBrowser loadedBrowser, CefFrame frame, int httpStatusCode) {
+                super.onLoadEnd(loadedBrowser, frame, httpStatusCode);
                 for (JSQueryHandler handler : handlers) {
-                    injectQueryHandler(handler.getHandlerName(), handler.getHandler(), handler.getArgName());
+                    injectQueryHandler(handler.getHandlerName(), handler.getJsQuery(), handler.getArgName());
                 }
             }
         }, browser.getCefBrowser());
