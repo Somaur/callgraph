@@ -35,7 +35,7 @@ public class BrowserManager {
     private BrowserManager() {
         try {
             browser = new JBCefBrowser();
-            browser.loadHTML(Utils.getResourceFileAsString("callgraph.html"));
+            browser.loadHTML(Utils.getResourceFileAsString("build/callgraph.html"));
             createJavaScriptBridge();
         } catch (IOException e) {
             throw new RuntimeException(e);
@@ -81,14 +81,14 @@ public class BrowserManager {
             Project project = ProjectManager.getInstance().getOpenProjects()[0];
             ApplicationManager.getApplication().invokeLater(() -> FileChooser.chooseFile(descriptor, project, null, (VirtualFile file) -> {
                 try {
-                    String saveAsTemplate = Utils.getResourceFileAsString("saveas_template.html");
+                    String saveAsTemplate = Utils.getResourceFileAsString("build/saveas.html");
                     PsiMethod lastGeneratedMethod = CallGraphGenerator.getInstance().getLastGeneratedMethod();
                     String className = lastGeneratedMethod.getContainingClass().getName();
                     String methodName = lastGeneratedMethod.getName();
                     String methodPath = className + "." + methodName;
                     String title = "Call Graph of " + project.getName() + " - " + methodPath;
                     saveAsTemplate = saveAsTemplate.replace("${title}", title);
-                    saveAsTemplate = saveAsTemplate.replace("${data}", CallGraphGenerator.getInstance().getJson());
+                    saveAsTemplate += "<script>updateNetwork("+CallGraphGenerator.getInstance().getJson()+")</script>";
                     Utils.writeToFile(file.getPath() + "/callgraph_" + project.getName() + "_" + className + "_" + methodName + ".html", saveAsTemplate);
                 } catch (IOException e) {
                     throw new RuntimeException(e);

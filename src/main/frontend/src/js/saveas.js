@@ -11,3 +11,5 @@ function updateNetwork(data) {
     network.setData(data);
     network.stabilize();
 }
+
+window.updateNetwork = updateNetwork;

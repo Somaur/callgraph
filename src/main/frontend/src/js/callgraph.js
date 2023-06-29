@@ -73,3 +73,7 @@ function updateNetwork(data) {
 function fit() {
     network.fit();
 }
+
+window.updateNetwork = updateNetwork;
+window.fit = fit;
+window.showMessage = showMessage;
