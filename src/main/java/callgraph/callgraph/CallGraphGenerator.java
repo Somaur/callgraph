@@ -1,5 +1,6 @@
 package callgraph.callgraph;
 
+import callgraph.callgraph.browser.BrowserManager;
 import com.intellij.openapi.editor.Document;
 import com.intellij.psi.*;
 import com.intellij.psi.search.searches.ReferencesSearch;
@@ -47,6 +48,7 @@ public class CallGraphGenerator {
 
         nodes.add(mainNode);
 
+        BrowserManager.getInstance().showMessage("Collecting the callers...");
         findAndAddCallers(mainMethod, 1);
 
         BrowserManager.getInstance().showMessage("Collecting the callers completed. Generating the graph...");
