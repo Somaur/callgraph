@@ -1,5 +1,11 @@
 package callgraph.callgraph;
 
+import com.intellij.openapi.editor.Editor;
+import com.intellij.openapi.fileEditor.FileEditorManager;
+import com.intellij.openapi.project.Project;
+import com.intellij.psi.*;
+import com.intellij.psi.util.PsiTreeUtil;
+
 import java.io.*;
 import java.util.stream.Collectors;
 
@@ -68,5 +74,25 @@ public final class Utils {
         FileWriter writer = new FileWriter(file);
         writer.write(content);
         writer.close();
+    }
+
+    public static PsiMethod getMethodAtCaret(Project project) {
+        Editor editor = FileEditorManager.getInstance(project).getSelectedTextEditor();
+        PsiFile psiFile = PsiDocumentManager.getInstance(project).getPsiFile(editor.getDocument());
+        int offset = editor.getCaretModel().getOffset();
+        PsiElement element = psiFile.findElementAt(offset);
+
+        if (element != null) {
+            if (element.getParent() instanceof PsiMethod) {
+                return (PsiMethod) element.getParent();
+            } else if (element.getParent() instanceof PsiReference) {
+                element = ((PsiReference) element.getParent()).resolve();
+                if (element instanceof PsiMethod) {
+                    return (PsiMethod) element;
+                }
+            }
+        }
+
+        return PsiTreeUtil.getParentOfType(element, PsiMethod.class);
     }
 }

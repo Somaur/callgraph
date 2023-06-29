@@ -33,11 +33,11 @@
             left: 12px;
         }
 
-        .navbutton {
+        .navbutton, .navbuttonMessage {
             text-transform: uppercase;
             text-decoration: none;
             text-shadow: 0 0 8px #333;
-            font-size: 1.0em;
+            font-size: 1em;
             letter-spacing: 2px;
             display: block;
             padding: 5px 5px 5px 5px;
@@ -58,32 +58,48 @@
             font-weight: bold;
         }
 
-        .navbutton-green:hover {
-            background-color: #2ab63c;
+        .buttonAndMessageContainer {
+            display: flex;
+        }
+
+        .navbuttonMessage {
+            letter-spacing: 0 !important;
+            text-transform: none !important;
+        }
+
+        .navbuttonMessage-success {
+            background-color: rgb(42, 182, 60);
+        }
+
+        .navbuttonMessage-error {
+            background-color: rgb(182, 42, 60);
         }
     </style>
 </head>
 
 <body>
-    <div id="message" class="centeredMessage hidden"></div>
-    <div id="network"></div>
-    <div id="navbar" class="navbar">
-        <--! TODO: button icons -->
-        <--! TODO: messages right by GENERATE button like "CAN NOT GENERATE FOR VARIABLES" and related colors -->
-        <--! TODO: hierarchical view option -->
-        <--! TODO: make transparent when not hovered -->
-        <button class="navbutton navbutton-green" onclick="JavaBridge.generateGraph()">GENERATE</button>
-        <button class="navbutton generatedGraphController hidden" onclick="fit()">FIT</button>
-        <button class="navbutton generatedGraphController hidden" onclick="JavaBridge.saveAsHtml()">SAVE AS
-            HTML</button>
+<div id="message" class="centeredMessage hidden"></div>
+<div id="network"></div>
+<div id="navbar" class="navbar">
+    <!-- TODO: button icons -->
+    <!-- TODO: messages right by GENERATE button like "CAN NOT GENERATE FOR VARIABLES" and related colors -->
+    <!-- TODO: hierarchical view option -->
+    <!-- TODO: make transparent when not hovered -->
+    <div class="buttonAndMessageContainer">
+        <button class="navbutton" onclick="JavaBridge.generateGraph()">GENERATE</button>
+        <span id="generateMessage" class="navbuttonMessage"></span>
     </div>
-    <script defer="defer">
-        <% /*
+    <button class="navbutton generatedGraphController hidden" onclick="fit()">FIT</button>
+    <button class="navbutton generatedGraphController hidden" onclick="JavaBridge.saveAsHtml()">SAVE AS HTML</button>
+</div>
+<script defer="defer">
+    <% /*
         The following line is a workaround for scripts that insert .js code into the generated .html file.
         Because this is set here, "inject: false" is set in webpack-config.js in plugins.HtmlWebpackPlugin
         */ %>
-        <%= compilation.assets[webpackConfig.output.filename].source() %>
-    </script>
+    <
+    %= compilation.assets[webpackConfig.output.filename].source() % >
+</script>
 </body>
 
 </html>

@@ -1,21 +1,16 @@
 package callgraph.callgraph.browser.handlers;
 
 import callgraph.callgraph.CallGraphGenerator;
+import callgraph.callgraph.Utils;
 import callgraph.callgraph.browser.BrowserManager;
 import callgraph.callgraph.browser.JSQueryHandler;
 import com.intellij.openapi.application.ApplicationManager;
-import com.intellij.openapi.editor.Editor;
-import com.intellij.openapi.fileEditor.FileEditorManager;
 import com.intellij.openapi.progress.ProgressIndicator;
 import com.intellij.openapi.progress.ProgressManager;
 import com.intellij.openapi.progress.Task;
 import com.intellij.openapi.project.Project;
 import com.intellij.openapi.project.ProjectManager;
-import com.intellij.psi.PsiDocumentManager;
-import com.intellij.psi.PsiElement;
-import com.intellij.psi.PsiFile;
 import com.intellij.psi.PsiMethod;
-import com.intellij.psi.util.PsiTreeUtil;
 import com.intellij.ui.jcef.JBCefBrowserBase;
 import org.jetbrains.annotations.NotNull;
 
@@ -25,11 +20,11 @@ public class GenerateGraphHandler extends JSQueryHandler {
         jsQuery.addHandler(unused -> {
             ApplicationManager.getApplication().invokeLater(() -> {
                 Project project = ProjectManager.getInstance().getOpenProjects()[0];
-                Editor editor = FileEditorManager.getInstance(project).getSelectedTextEditor();
-                PsiFile psiFile = PsiDocumentManager.getInstance(project).getPsiFile(editor.getDocument());
-                int offset = editor.getCaretModel().getOffset();
-                PsiElement element = psiFile.findElementAt(offset);
-                PsiMethod method = PsiTreeUtil.getParentOfType(element, PsiMethod.class);
+                PsiMethod method = Utils.getMethodAtCaret(project);
+
+                if (method == null) {
+                    return;
+                }
 
                 // Do the graph creation in separate thread with progress bar
                 ProgressManager.getInstance().run(new Task.Backgroundable(project, "Generating Call Graph") {

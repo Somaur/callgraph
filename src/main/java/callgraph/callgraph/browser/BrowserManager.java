@@ -48,6 +48,10 @@ public class BrowserManager {
         executeJavaScript("updateNetwork(" + json + ")");
     }
 
+    public void setGenerateMessage(String message) {
+        executeJavaScript("setGenerateMessage('" + message + "')");
+    }
+
     private void createJavaScriptBridge() {
         List<JSQueryHandler> handlers = new HandlerFactory().getHandlers(browser);
         browser.getJBCefClient().addLoadHandler(new CefLoadHandlerAdapter() {
