@@ -1,0 +1,19 @@
+{
+  "name": "callgraph-frontend",
+  "version": "1.0.0",
+  "description": "Frontend of Intellij IDEA CallGraph plugin.",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "author": "yunusemregul",
+  "license": "ISC",
+  "devDependencies": {
+    "html-webpack-plugin": "^5.5.3",
+    "webpack": "^5.88.1",
+    "webpack-cli": "^5.1.4"
+  },
+  "dependencies": {
+    "vis-network": "^9.1.6"
+  }
+}
