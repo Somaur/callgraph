@@ -97,8 +97,7 @@
         The following line is a workaround for scripts that insert .js code into the generated .html file.
         Because this is set here, "inject: false" is set in webpack-config.js in plugins.HtmlWebpackPlugin
         */ %>
-    <
-    %= compilation.assets[webpackConfig.output.filename].source() % >
+    <%= compilation.assets[webpackConfig.output.filename].source() %>
 </script>
 </body>
 
