@@ -85,8 +85,8 @@
     <!-- TODO: messages right by GENERATE button like "CAN NOT GENERATE FOR VARIABLES" and related colors -->
     <!-- TODO: hierarchical view option -->
     <!-- TODO: make transparent when not hovered -->
-    <div class="buttonAndMessageContainer">
-        <button class="navbutton" onclick="JavaBridge.generateGraph()">GENERATE</button>
+    <div class="buttonAndMessageContainer" onclick="JavaBridge.generateGraph()">
+        <button class="navbutton">GENERATE</button>
         <span id="generateMessage" class="navbuttonMessage"></span>
     </div>
     <button class="navbutton generatedGraphController hidden" onclick="fit()">FIT</button>
