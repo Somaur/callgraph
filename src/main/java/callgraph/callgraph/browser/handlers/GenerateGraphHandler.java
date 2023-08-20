@@ -12,12 +12,20 @@ import com.intellij.openapi.project.Project;
 import com.intellij.openapi.project.ProjectManager;
 import com.intellij.psi.PsiMethod;
 import com.intellij.ui.jcef.JBCefBrowserBase;
+import com.intellij.ui.jcef.JBCefJSQuery;
 import org.jetbrains.annotations.NotNull;
+
+import java.util.function.Function;
 
 public class GenerateGraphHandler extends JSQueryHandler {
     public GenerateGraphHandler(JBCefBrowserBase browser) {
         super(browser);
-        jsQuery.addHandler(unused -> {
+    }
+
+    @Override
+    @NotNull
+    public Function<? super String, ? extends JBCefJSQuery.Response> getHandler() {
+        return unused -> {
             ApplicationManager.getApplication().invokeLater(() -> {
                 Project project = ProjectManager.getInstance().getOpenProjects()[0];
                 PsiMethod method = Utils.getMethodAtCaret(project);
@@ -39,7 +47,7 @@ public class GenerateGraphHandler extends JSQueryHandler {
                 });
             });
             return null;
-        });
+        };
     }
 
     @Override
