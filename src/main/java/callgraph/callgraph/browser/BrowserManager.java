@@ -21,6 +21,7 @@ public class BrowserManager {
             browser.loadHTML(Utils.getResourceFileAsString("build/callgraph.html"));
             createJavaScriptBridge();
         } catch (IOException e) {
+            // TODO: handle this
             throw new RuntimeException(e);
         }
     }
