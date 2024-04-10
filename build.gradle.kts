@@ -1,6 +1,7 @@
 plugins {
     id("java")
-    id("org.jetbrains.intellij") version "1.10.1"
+    id("org.jetbrains.intellij") version "1.17.3"
+    kotlin("jvm") version "1.9.21"
 }
 
 group = "callgraph"
@@ -13,7 +14,7 @@ repositories {
 // Configure Gradle IntelliJ Plugin
 // Read more: https://plugins.jetbrains.com/docs/intellij/tools-gradle-intellij-plugin.html
 intellij {
-    version.set("2022.1.4")
+    version.set("2024.1")
     type.set("IC") // Target IDE Platform
 
     plugins.set(listOf("com.intellij.java"))
@@ -27,13 +28,8 @@ dependencies {
 tasks {
     // Set the JVM compatibility versions
     withType<JavaCompile> {
-        sourceCompatibility = "11"
-        targetCompatibility = "11"
-    }
-
-    patchPluginXml {
-        sinceBuild.set("221")
-        untilBuild.set("232.*")
+        sourceCompatibility = "17"
+        targetCompatibility = "17"
     }
 
     signPlugin {

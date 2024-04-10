@@ -1,6 +1,7 @@
 package callgraph.callgraph;
 
 import callgraph.callgraph.browser.BrowserManager;
+import com.intellij.openapi.editor.Editor;
 import com.intellij.openapi.editor.event.CaretEvent;
 import com.intellij.openapi.editor.event.CaretListener;
 import com.intellij.openapi.wm.ToolWindow;
@@ -17,7 +18,8 @@ public class CallGraphCaretListener implements CaretListener {
     @Override
     public void caretPositionChanged(@NotNull CaretEvent event) {
         if (toolWindow.isVisible()) {
-            PsiMethod method = Utils.getMethodAtCaret(event.getEditor().getProject());
+            Editor editor = event.getEditor();
+            PsiMethod method = Utils.getMethodAtCaret(editor.getProject(), editor);
 
             if (method != null) {
                 BrowserManager.getInstance().setGenerateMessage("+FOR " + method.getName());

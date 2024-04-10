@@ -28,7 +28,7 @@ public class GenerateGraphHandler extends JSQueryHandler {
         return unused -> {
             ApplicationManager.getApplication().invokeLater(() -> {
                 Project project = ProjectManager.getInstance().getOpenProjects()[0];
-                PsiMethod method = Utils.getMethodAtCaret(project);
+                PsiMethod method = Utils.getMethodAtCaret(project, null);
 
                 if (method == null) {
                     return;
