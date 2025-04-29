@@ -1,8 +1,14 @@
-# Callgraph - IntelliJ Plugin
+# CallGraph - IntelliJ Plugin
+
+<p align="center">
+  <img src="src/main/resources/META-INF/pluginIcon.svg" alt="CallGraph Icon" height="128">
+  <br>
+  <b>CallGraph</b>
+</p>
 
 ## Overview
 
-Callgraph is an IntelliJ IDEA plugin that generates and visualizes call graphs for Java methods. It helps developers understand code flow by showing how methods call each other, making it easier to navigate and comprehend complex codebases.
+CallGraph is an IntelliJ IDEA plugin that generates and visualizes call graphs for Java methods. It helps developers understand code flow by showing how methods call each other, making it easier to navigate and comprehend complex codebases.
 
 ![Sample Callgraph](sample.jpeg)
 
@@ -18,16 +24,18 @@ Callgraph is an IntelliJ IDEA plugin that generates and visualizes call graphs f
 ## Requirements
 
 - IntelliJ IDEA (Community or Ultimate) 2022.1 or later
-- Java 17 or higher
+- Java 8 or higher
 - Java projects only (requires the Java module)
 
 ## Installation
 
 ### From JetBrains Marketplace
 
+Either click the install button on [JetBrains Marketplace](https://plugins.jetbrains.com/plugin/27227-callgraph) or follow these steps:
+
 1. Open IntelliJ IDEA
 2. Go to Settings (Preferences) → Plugins → Marketplace
-3. Search for "Callgraph"
+3. Search for "CallGraph"
 4. Click "Install"
 5. Restart IntelliJ IDEA when prompted
 
