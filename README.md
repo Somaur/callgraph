@@ -27,10 +27,6 @@ CallGraph is an IntelliJ IDEA plugin that generates and visualizes call graphs f
 ## Features
 
 - **Interactive Call Graph Visualization**: Displays method calls in an interactive graph format
-- **Real-time Updates**: Updates the graph as you navigate through your code
-- **Caller Identification**: Quickly identifies all callers of a selected method
-- **Controller Endpoint Detection**: Special highlighting for Spring controller endpoints
-- **Customizable Visualization**: Color-coded by class for better readability
 - **Interactive Network Graph**: Built with vis-network.js for smooth, interactive graph navigation
 
 ## Requirements

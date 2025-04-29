@@ -21,24 +21,20 @@
       <li>Place your caret (text cursor) on any Java method in your code</li>
       <li>Click on the CallGraph icon in the toolbar (or use View → Tool Windows → CallGraph)</li>
       <li>Click on the <b>GENERATE</b> button, your graph will be generated</li>
-      <li>Click on any node in the graph to navigate to that method</li>
-      <li>Click on any edge in the graph to navigate to that call</li>
+      <li><b>Click on any node</b> in the graph to navigate to that <b>method</b></li>
+      <li><b>Click on any edge</b> in the graph to navigate to that <b>call</b></li>
     </ol>
     
     <p><b>Features:</b></p>
     <ul>
       <li><b>Interactive Call Graph Visualization:</b> Displays method calls in an interactive graph format</li>
-      <li><b>Real-time Updates:</b> Updates the graph as you navigate through your code</li>
-      <li><b>Caller Identification:</b> Quickly identifies all callers of a selected method</li>
-      <li><b>Controller Endpoint Detection:</b> Special highlighting for Spring controller endpoints</li>
-      <li><b>Customizable Visualization:</b> Color-coded by class for better readability</li>
       <li><b>Interactive Network Graph:</b> Built with vis-network.js for smooth, interactive graph navigation</li>
     </ul>
   ]]></description>
 
     <!-- Change notes documentation -->
     <change-notes><![CDATA[
-    <h3>1.1</h3>
+    <h3>1.1 & 1.2</h3>
     <ul>
       <li>Improved plugin description for better clarity</li>
     </ul>
