@@ -5,28 +5,52 @@
 
     <!-- Public plugin name should be written in Title Case.
          Guidelines: https://plugins.jetbrains.com/docs/marketplace/plugin-overview-page.html#plugin-name -->
-    <name>Callgraph</name>
+    <name>CallGraph</name>
 
     <!-- A displayed Vendor name or Organization ID displayed on the Plugins Page. -->
-    <vendor email="yunemregul@gmail.com">yunemregul</vendor>
+    <vendor email="yunemregul@gmail.com" url="https://github.com/yunusemregul">Yunus Emre Gül</vendor>
 
     <!-- Description of the plugin displayed on the Plugin Page and IDE Plugin Manager.
          Simple HTML elements (text formatting, paragraphs, and lists) can be added inside of <![CDATA[ ]]> tag.
          Guidelines: https://plugins.jetbrains.com/docs/marketplace/plugin-overview-page.html#plugin-description -->
     <description><![CDATA[
-    Enter short description for your plugin here.<br>
-    <em>most HTML tags may be used</em>
+    <p>Interactive visualization of Java method call graphs to help you understand and navigate code flow.</p>
+    
+    <p><b>Features:</b></p>
+    <ul>
+      <li><b>Interactive Call Graph Visualization:</b> See method calls in an interactive graph format</li>
+      <li><b>Real-time Updates:</b> Graph updates as you navigate through your code</li>
+      <li><b>Caller Identification:</b> Quickly identifies all callers of a selected method</li>
+      <li><b>Controller Endpoint Detection:</b> Special highlighting for Spring controller endpoints</li>
+      <li><b>Customizable Visualization:</b> Color-coded by class for better readability</li>
+    </ul>
+    
+    <p>Simply navigate to a Java method, and the call graph will appear in the tool window at the bottom of the IDE.</p>
   ]]></description>
+
+    <!-- Change notes documentation -->
+    <change-notes><![CDATA[
+    <h3>1.0</h3>
+    <ul>
+      <li>Initial release</li>
+      <li>Interactive call graph visualization</li>
+      <li>Support for Java projects</li>
+      <li>Spring controller endpoint detection</li>
+    </ul>
+  ]]></change-notes>
 
     <!-- Product and plugin compatibility requirements.
          Read more: https://plugins.jetbrains.com/docs/intellij/plugin-compatibility.html -->
     <depends>com.intellij.modules.platform</depends>
     <depends>com.intellij.modules.java</depends>
 
+    <!-- Define the minimum and maximum build numbers for compatibility -->
+    <idea-version since-build="211"/>
+
     <!-- Extension points defined by the plugin.
          Read more: https://plugins.jetbrains.com/docs/intellij/plugin-extension-points.html -->
     <extensions defaultExtensionNs="com.intellij">
-        <toolWindow id="Call Graph" icon="AllIcons.Hierarchy.Subtypes" anchor="bottom"
+        <toolWindow id="CallGraph" icon="AllIcons.Hierarchy.Subtypes" anchor="bottom"
                     factoryClass="callgraph.callgraph.CallGraphToolWindowFactory"/>
     </extensions>
 </idea-plugin>
