@@ -14,18 +14,26 @@
          Simple HTML elements (text formatting, paragraphs, and lists) can be added inside of <![CDATA[ ]]> tag.
          Guidelines: https://plugins.jetbrains.com/docs/marketplace/plugin-overview-page.html#plugin-description -->
     <description><![CDATA[
-    <p>Interactive visualization of Java method call graphs to help you understand and navigate code flow.</p>
+    <p>CallGraph is an IntelliJ IDEA plugin that generates and visualizes call graphs for Java methods. It helps developers understand code flow by showing how methods call each other, making it easier to navigate and comprehend complex codebases.</p>
+    
+    <p><b>How to Use:</b></p>
+    <ol>
+      <li>Place your caret (text cursor) on any Java method in your code</li>
+      <li>Click on the CallGraph icon in the toolbar (or use View → Tool Windows → CallGraph)</li>
+      <li>Click on the <b>GENERATE</b> button, your graph will be generated</li>
+      <li>Click on any node in the graph to navigate to that method</li>
+      <li>Click on any edge in the graph to navigate to that call</li>
+    </ol>
     
     <p><b>Features:</b></p>
     <ul>
-      <li><b>Interactive Call Graph Visualization:</b> See method calls in an interactive graph format</li>
-      <li><b>Real-time Updates:</b> Graph updates as you navigate through your code</li>
+      <li><b>Interactive Call Graph Visualization:</b> Displays method calls in an interactive graph format</li>
+      <li><b>Real-time Updates:</b> Updates the graph as you navigate through your code</li>
       <li><b>Caller Identification:</b> Quickly identifies all callers of a selected method</li>
       <li><b>Controller Endpoint Detection:</b> Special highlighting for Spring controller endpoints</li>
       <li><b>Customizable Visualization:</b> Color-coded by class for better readability</li>
+      <li><b>Interactive Network Graph:</b> Built with vis-network.js for smooth, interactive graph navigation</li>
     </ul>
-    
-    <p>Simply navigate to a Java method, and the call graph will appear in the tool window at the bottom of the IDE.</p>
   ]]></description>
 
     <!-- Change notes documentation -->

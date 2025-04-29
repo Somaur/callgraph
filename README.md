@@ -4,6 +4,10 @@
   <img src="src/main/resources/META-INF/pluginIcon.svg" alt="CallGraph Icon" height="128">
   <br>
   <b>CallGraph</b>
+  <br><br>
+  <a href="https://plugins.jetbrains.com/plugin/27227-callgraph">
+    <img src="get-from-marketplace.png" alt="Get from Marketplace" height="64">
+  </a>
 </p>
 
 ## Overview
@@ -11,6 +15,14 @@
 CallGraph is an IntelliJ IDEA plugin that generates and visualizes call graphs for Java methods. It helps developers understand code flow by showing how methods call each other, making it easier to navigate and comprehend complex codebases.
 
 ![Sample Callgraph](sample.jpeg)
+
+## Usage
+
+1. Place your caret (text cursor) on any Java method in your code
+2. Click on the CallGraph icon in the toolbar (or use View → Tool Windows → CallGraph)
+3. Click on the **GENERATE** button, your graph will be generated.
+4. Click on any node in the graph to navigate to that method
+5. Click on any edge in the graph to navigate to that call
 
 ## Features
 
@@ -29,15 +41,17 @@ CallGraph is an IntelliJ IDEA plugin that generates and visualizes call graphs f
 
 ## Installation
 
+You can install CallGraph in several ways:
+
 ### From JetBrains Marketplace
 
-Either click the install button on [JetBrains Marketplace](https://plugins.jetbrains.com/plugin/27227-callgraph) or follow these steps:
+<p align="center">
+   <a href="https://plugins.jetbrains.com/plugin/27227-callgraph">
+      <img src="get-from-marketplace.png" alt="Get from Marketplace" height="64">
+   </a>
+</p>
 
-1. Open IntelliJ IDEA
-2. Go to Settings (Preferences) → Plugins → Marketplace
-3. Search for "CallGraph"
-4. Click "Install"
-5. Restart IntelliJ IDEA when prompted
+1. Click the button above
 
 ### Manual Installation
 
@@ -47,19 +61,6 @@ Either click the install button on [JetBrains Marketplace](https://plugins.jetbr
 4. Click the gear icon and select "Install Plugin from Disk..."
 5. Select the downloaded ZIP file
 6. Restart IntelliJ IDEA when prompted
-
-## Usage
-
-1. Open a Java project in IntelliJ IDEA
-2. Navigate to a Java method in the editor
-3. The call graph tool window will appear at the bottom of the IDE
-4. The graph will automatically update as you navigate between methods
-5. Click on nodes in the graph to navigate to the corresponding method
-6. Hover over edges to see the line number where the call occurs
-
-### Keyboard Shortcuts
-
-- Use standard navigation to move between methods, the graph will update accordingly
 
 ## Architecture
 
