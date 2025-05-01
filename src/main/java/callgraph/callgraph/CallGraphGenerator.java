@@ -190,21 +190,22 @@ public class CallGraphGenerator {
         if (!groups.containsKey(method.getContainingClass().getQualifiedName())) {
             JSONObject group = new JSONObject();
 
+            UIColor uiColor = UIColor.getNextColor();
+            
             JSONObject color = new JSONObject();
-            String randomColorFromPalette = Utils.getRandomColorFromPalette();
-            color.put("background", randomColorFromPalette);
-            color.put("border", randomColorFromPalette);
+            color.put("background", uiColor.getMainColor());
+            color.put("border", uiColor.getMainColor());
 
             JSONObject hoverAndHighlightColor = new JSONObject();
-            hoverAndHighlightColor.put("background", Utils.darkenHexColor(randomColorFromPalette, 0.1));
-            hoverAndHighlightColor.put("border", Utils.darkenHexColor(randomColorFromPalette, 0.2));
+            hoverAndHighlightColor.put("background", uiColor.getDarkColor());
+            hoverAndHighlightColor.put("border", uiColor.getDarkColor());
 
             color.put("highlight", hoverAndHighlightColor);
             color.put("hover", hoverAndHighlightColor);
 
             JSONObject font = new JSONObject();
-            font.put("color", Utils.getTextColorFromBackground(randomColorFromPalette));
-            font.put("strokeColor", randomColorFromPalette);
+            font.put("color", uiColor.getTextColor());
+            font.put("strokeColor", uiColor.getMainColor());
 
             group.put("color", color);
             group.put("font", font);
