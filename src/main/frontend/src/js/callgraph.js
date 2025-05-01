@@ -59,8 +59,6 @@ function hideGraphControls() {
     }
 }
 
-showMessage("Click on 'Generate Graph' to generate a call graph.");
-
 function updateNetwork(data) {
     hideGraphControls();
     showMessage("Rendering graph...");
@@ -78,8 +76,8 @@ function fit() {
     network.fit();
 }
 
-
 const MESSAGE_TYPE_SUCCESS = "+";
+const MESSAGE_TYPE_ERROR = "-";
 
 /**
  * Sets the message by the GENERATE button.
@@ -90,7 +88,7 @@ function setGenerateMessage(message) {
     let classToSet = "navbuttonMessage "
     if (messageTypeFlag === MESSAGE_TYPE_SUCCESS) {
         classToSet += "navbuttonMessage-success";
-    } else {
+    } else if (messageTypeFlag === MESSAGE_TYPE_ERROR) {
         classToSet += "navbuttonMessage-error";
     }
     generateMessage.className = classToSet;
@@ -101,3 +99,6 @@ window.updateNetwork = updateNetwork;
 window.fit = fit;
 window.showMessage = showMessage;
 window.setGenerateMessage = setGenerateMessage;
+
+showMessage("Place your caret on a method and click on GENERATE to generate a call graph.");
+setGenerateMessage("-PLACE YOUR CARET ON A METHOD")

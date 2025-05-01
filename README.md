@@ -12,7 +12,7 @@
 
 ## Overview
 
-CallGraph is an IntelliJ IDEA plugin that generates and visualizes call graphs for Java methods. It helps developers understand code flow by showing how methods call each other, making it easier to navigate and comprehend complex codebases.
+CallGraph helps you understand your Java codebase by visualizing how methods call each other. Simply select any method, generate a graph, and explore the connections through an interactive diagram. When you click on edges in the graph, you'll be taken directly to where that method call appears in your code editor.
 
 ![Sample Callgraph](sample.jpeg)
 
@@ -20,14 +20,17 @@ CallGraph is an IntelliJ IDEA plugin that generates and visualizes call graphs f
 
 1. Place your caret (text cursor) on any Java method in your code
 2. Click on the CallGraph icon in the toolbar (or use View → Tool Windows → CallGraph)
-3. Click on the **GENERATE** button, your graph will be generated.
-4. Click on any node in the graph to navigate to that method
-5. Click on any edge in the graph to navigate to that call
+3. Click on the **GENERATE** button, your graph will be generated
+4. Click on any node (method) in the graph to jump to its definition
+5. Click on any edge (arrow) in the graph to jump to the exact line where that method is being called
 
 ## Features
 
-- **Interactive Call Graph Visualization**: Displays method calls in an interactive graph format
-- **Interactive Network Graph**: Built with vis-network.js for smooth, interactive graph navigation
+- You can generate call graphs for any method in your codebase
+- You can navigate to method definitions by clicking nodes in the graph
+- You can navigate to exact method call locations by clicking edges in the graph
+- You can pan & zoom in and out of the graph
+- You can save the graph as a HTML file
 
 ## Requirements
 
