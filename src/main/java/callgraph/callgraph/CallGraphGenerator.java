@@ -1,7 +1,9 @@
 package callgraph.callgraph;
 
 import callgraph.callgraph.browser.BrowserManager;
+import com.intellij.openapi.components.Service;
 import com.intellij.openapi.editor.Document;
+import com.intellij.openapi.project.Project;
 import com.intellij.psi.*;
 import com.intellij.psi.search.searches.ReferencesSearch;
 import com.intellij.psi.util.PsiTreeUtil;
@@ -13,29 +15,28 @@ import java.util.Collection;
 import java.util.HashMap;
 
 @SuppressWarnings("unchecked")
-public class CallGraphGenerator {
-    private static CallGraphGenerator instance;
+@Service(Service.Level.PROJECT)
+public final class CallGraphGenerator {
+    private final Project project;
     private final JSONArray nodes;
     private final JSONArray edges;
     private final JSONObject groups;
     private final HashMap<Integer, PsiElement> references = new HashMap<>();
     private PsiMethod lastGeneratedMethod;
 
-    private CallGraphGenerator() {
+    public CallGraphGenerator(Project project) {
+        this.project = project;
         this.nodes = new JSONArray();
         this.edges = new JSONArray();
         this.groups = new JSONObject();
     }
 
-    public static CallGraphGenerator getInstance() {
-        if (instance == null) {
-            instance = new CallGraphGenerator();
-        }
-        return instance;
+    public static CallGraphGenerator getInstance(Project project) {
+        return project.getService(CallGraphGenerator.class);
     }
 
     public String generate(PsiMethod mainMethod) {
-        BrowserManager.getInstance().showMessage("Clearing the graph...");
+        BrowserManager.getInstance(project).showMessage("Clearing the graph...");
         clear();
 
         lastGeneratedMethod = mainMethod;
@@ -48,10 +49,10 @@ public class CallGraphGenerator {
 
         nodes.add(mainNode);
 
-        BrowserManager.getInstance().showMessage("Collecting the callers...");
+        BrowserManager.getInstance(project).showMessage("Collecting the callers...");
         findAndAddCallers(mainMethod, 1);
 
-        BrowserManager.getInstance().showMessage("Collecting the callers completed. Generating the graph...");
+        BrowserManager.getInstance(project).showMessage("Collecting the callers completed. Generating the graph...");
 
         return getJson();
     }

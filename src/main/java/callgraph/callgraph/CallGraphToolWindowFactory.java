@@ -16,7 +16,7 @@ public final class CallGraphToolWindowFactory implements ToolWindowFactory {
 
     @Override
     public void createToolWindowContent(@NotNull Project project, @NotNull ToolWindow toolWindow) {
-        BrowserManager browserManager = BrowserManager.getInstance();
+        BrowserManager browserManager = BrowserManager.getInstance(project);
         JBCefBrowser browser = browserManager.getJBCefBrowser();
 
         JComponent component = browser.getComponent();
@@ -24,6 +24,6 @@ public final class CallGraphToolWindowFactory implements ToolWindowFactory {
         toolWindow.getContentManager().addContent(content);
 
         EditorEventMulticaster eventMulticaster = EditorFactory.getInstance().getEventMulticaster();
-        eventMulticaster.addCaretListener(new CallGraphCaretListener(toolWindow));
+        eventMulticaster.addCaretListener(new CallGraphCaretListener(project, toolWindow));
     }
 }

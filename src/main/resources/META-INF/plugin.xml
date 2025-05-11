@@ -64,5 +64,7 @@
     <extensions defaultExtensionNs="com.intellij">
         <toolWindow id="CallGraph" icon="AllIcons.Hierarchy.Subtypes" anchor="bottom"
                     factoryClass="callgraph.callgraph.CallGraphToolWindowFactory"/>
+        <projectService serviceImplementation="callgraph.callgraph.browser.BrowserManager"/>
+        <projectService serviceImplementation="callgraph.callgraph.CallGraphGenerator"/>
     </extensions>
 </idea-plugin>
