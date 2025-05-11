@@ -7,6 +7,8 @@ window.JavaBridge = {
     saveAsHtml: (unused) => {
     },
     generateGraph: (unused) => {
+    },
+    openSettings: (unused) => {
     }
 }
 
