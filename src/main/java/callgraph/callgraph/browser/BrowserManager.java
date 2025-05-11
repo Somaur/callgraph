@@ -1,8 +1,12 @@
 package callgraph.callgraph.browser;
 
 import callgraph.callgraph.Utils;
+import callgraph.callgraph.settings.CallGraphSettings;
+import com.intellij.ide.ui.LafManager;
 import com.intellij.openapi.components.Service;
+import com.intellij.openapi.editor.colors.EditorColorsManager;
 import com.intellij.openapi.project.Project;
+import com.intellij.ui.ColorUtil;
 import com.intellij.ui.jcef.JBCefBrowser;
 import com.intellij.ui.jcef.JBCefJSQuery;
 import org.cef.browser.CefBrowser;
@@ -10,6 +14,7 @@ import org.cef.browser.CefFrame;
 import org.cef.handler.CefLoadHandlerAdapter;
 
 import javax.swing.Timer;
+import java.awt.Color;
 import java.io.IOException;
 import java.util.List;
 import java.util.concurrent.atomic.AtomicBoolean;
@@ -53,9 +58,7 @@ public final class BrowserManager {
      * @param script The JavaScript code to execute
      */
     public void executeJavaScript(String script) {
-        if (isBrowserInitialized()) {
-            browser.getCefBrowser().executeJavaScript(script, browser.getCefBrowser().getURL(), 0);
-        }
+        browser.getCefBrowser().executeJavaScript(script, browser.getCefBrowser().getURL(), 0);
     }
 
     public void showMessage(String message) {
@@ -99,6 +102,26 @@ public final class BrowserManager {
         }
     }
 
+    /**
+     * Apply current settings to the browser display
+     */
+    public void applySettings() {
+        if (isBrowserInitialized()) {
+            CallGraphSettings settings = CallGraphSettings.getInstance(project);
+            
+            // Get the IDE editor background color if needed
+            String backgroundColor = settings.getCustomBackgroundColor();
+            if (CallGraphSettings.BACKGROUND_TYPE_IDE.equals(settings.getBackgroundType())) {
+                Color editorBackground = EditorColorsManager.getInstance().getGlobalScheme().getDefaultBackground();
+                backgroundColor = "#" + ColorUtil.toHex(editorBackground);
+            }
+
+            // Apply the background color to the graph
+            executeJavaScript("document.body.style.backgroundColor = '" + backgroundColor + "';");
+            executeJavaScript("document.getElementById('network').style.backgroundColor = '" + backgroundColor + "';");
+        }
+    }
+
     private void createJavaScriptBridge() {
         List<JSQueryHandler> handlers = new HandlerFactory().getHandlers(browser, project);
         browser.getJBCefClient().addLoadHandler(new CefLoadHandlerAdapter() {
@@ -109,6 +132,9 @@ public final class BrowserManager {
                     injectQueryHandler(handler.getHandlerName(), handler.getJsQuery(), handler.getArgName());
                 }
                 browserInitialized.set(true);
+                
+                // Apply settings after browser is initialized
+                applySettings();
                 
                 if (System.getProperty("callgraph.devtools.open") != null) {
                     browser.openDevtools();
