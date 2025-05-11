@@ -22,12 +22,16 @@ public class CallGraphCaretListener implements CaretListener {
     public void caretPositionChanged(@NotNull CaretEvent event) {
         if (toolWindow.isVisible()) {
             Editor editor = event.getEditor();
-            PsiMethod method = Utils.getMethodAtCaret(editor.getProject(), editor);
+            
+            // Only process events from editors in the current project
+            if (editor.getProject() != null && editor.getProject().equals(project)) {
+                PsiMethod method = Utils.getMethodAtCaret(project, editor);
 
-            if (method != null) {
-                BrowserManager.getInstance(project).setGenerateMessage("+FOR " + method.getName());
-            } else {
-                BrowserManager.getInstance(project).setGenerateMessage("-PLACE YOUR CARET ON A METHOD");
+                if (method != null) {
+                    BrowserManager.getInstance(project).setGenerateMessage("+FOR " + method.getName());
+                } else {
+                    BrowserManager.getInstance(project).setGenerateMessage("-PLACE YOUR CARET ON A METHOD");
+                }
             }
         }
     }
