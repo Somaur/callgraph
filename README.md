@@ -122,6 +122,8 @@ The frontend uses:
 - vis-network.js for graph visualization
 - webpack for bundling
 
+Open project in Intellij IDEA and run "Run Plugin" configuration.
+
 ## Contributing
 
 Contributions are welcome! If you'd like to contribute, please:
