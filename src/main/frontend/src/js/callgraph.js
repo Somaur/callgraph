@@ -97,10 +97,36 @@ function setGenerateMessage(message) {
     generateMessage.innerHTML = message.substring(1);
 }
 
+/**
+ * Determines if a color is light or dark and updates the centeredMessage text color accordingly
+ * @param {string} backgroundColor - Color in hex format (#RRGGBB)
+ */
+function updateMessageTextColor(backgroundColor) {
+    // Remove the # if it exists
+    backgroundColor = backgroundColor.replace('#', '');
+    
+    // Convert hex to RGB
+    const r = parseInt(backgroundColor.substr(0, 2), 16);
+    const g = parseInt(backgroundColor.substr(2, 2), 16);
+    const b = parseInt(backgroundColor.substr(4, 2), 16);
+    
+    // Calculate brightness (using relative luminance formula)
+    // https://www.w3.org/TR/WCAG20/#relativeluminancedef
+    const brightness = (0.299 * r + 0.587 * g + 0.114 * b) / 255;
+    
+    // If brightness > 0.5, it's a light color, otherwise dark
+    if (brightness > 0.5) {
+        messageElement.style.color = "black";
+    } else {
+        messageElement.style.color = "white";
+    }
+}
+
 window.updateNetwork = updateNetwork;
 window.fit = fit;
 window.showMessage = showMessage;
 window.setGenerateMessage = setGenerateMessage;
+window.updateMessageTextColor = updateMessageTextColor;
 
 showMessage("Place your caret on a method and click on GENERATE to generate a call graph.");
 setGenerateMessage("-PLACE YOUR CARET ON A METHOD")
