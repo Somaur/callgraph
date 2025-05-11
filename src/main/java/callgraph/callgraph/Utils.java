@@ -41,16 +41,22 @@ public final class Utils {
     }
 
     public static PsiMethod getMethodAtCaret(Project project, Editor editor) {
+        if (project == null) {
+            return null;
+        }
+        
         if (editor == null) {
             editor = FileEditorManager.getInstance(project).getSelectedTextEditor();
         }
         if (editor == null) {
             return null;
         }
+        
         PsiFile psiFile = PsiDocumentManager.getInstance(project).getPsiFile(editor.getDocument());
         if (psiFile == null) {
             return null;
         }
+        
         int offset = editor.getCaretModel().getOffset();
         PsiElement element = psiFile.findElementAt(offset);
 
