@@ -14,35 +14,36 @@
          Simple HTML elements (text formatting, paragraphs, and lists) can be added inside of <![CDATA[ ]]> tag.
          Guidelines: https://plugins.jetbrains.com/docs/marketplace/plugin-overview-page.html#plugin-description -->
     <description><![CDATA[
-    <p>CallGraph helps you understand your Java codebase by visualizing how methods call each other. Simply select any method, generate a graph, and explore the connections through an interactive diagram. When you click on edges in the graph, you'll be taken directly to where that method call appears in your code editor.</p>
-    
-    <p><b>How to Use:</b></p>
-    <ol>
-      <li>Place your caret (text cursor) on any Java method in your code</li>
-      <li>Either:
-        <ul>
-          <li>Right-click and select "Generate Call Graph" from the context menu</li>
-          <li>Use keyboard shortcut Alt+Shift+E</li>
-          <li>Click on the CallGraph icon in the toolbar (or use View → Tool Windows → CallGraph) and click the <b>GENERATE</b> button</li>
-        </ul>
-      </li>
-      <li>Click on any node (method) in the graph to jump to its definition</li>
-      <li>Click on any edge (arrow) in the graph to jump to the exact line where that method is being called</li>
-    </ol>
-    
-    <p><b>Features:</b></p>
+    <p><strong>CallGraph</strong> visualizes caller–callee relationships for any Java method and lets you jump straight to definitions or call sites.</p>
+
+    <h3>Key features</h3>
     <ul>
-      <li>You can generate call graphs for any method in your codebase</li>
-      <li>You can generate graphs directly from the editor context menu</li>
-      <li>You can navigate to method definitions by clicking nodes in the graph</li>
-      <li>You can navigate to exact method call locations by clicking edges in the graph</li>
-      <li>You can pan & zoom in and out of the graph</li>
-      <li>You can save the graph as a HTML file</li>
+      <li>Create a call graph from the current caret position (Alt+Shift+E / Option+Shift+E on&nbsp;macOS).</li>
+      <li>Click a node to open the method; click an edge to open the exact calling line.</li>
+      <li>Pan and zoom to inspect large graphs.</li>
+      <li>Export the diagram as a standalone HTML file.</li>
+      <li>Open-source (MIT) &ndash; view the code on <a href="https://github.com/yunusemregul/callgraph">GitHub</a>.</li>
     </ul>
-  ]]></description>
+
+    <h3>Usage</h3>
+    <ol>
+      <li>Place the caret on any Java method.</li>
+      <li>Select <em>Generate Call Graph</em> from the context menu, toolbar, tool window, or use the shortcut.</li>
+      <li>Explore the graph and click elements to navigate within the IDE.</li>
+    </ol>
+      ]]></description>
 
     <!-- Change notes documentation -->
     <change-notes><![CDATA[
+    <h3>1.3</h3>
+    <ul>
+      <li>Added options menu for customizing graph background color</li>
+      <li>Fixed crash when opening new projects with CallGraph window open</li>
+      <li>Fixed multi-project support to respect active editor context</li>
+      <li>Added right-click context menu option to generate call graphs</li>
+      <li>Added keyboard shortcut (Alt+Shift+E, Option+Shift+E on macOS) for quick graph generation</li>
+    </ul>
+    
     <h3>1.1 & 1.2</h3>
     <ul>
       <li>Improved plugin description for better clarity</li>

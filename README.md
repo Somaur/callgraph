@@ -19,18 +19,22 @@ CallGraph helps you understand your Java codebase by visualizing how methods cal
 ## Usage
 
 1. Place your caret (text cursor) on any Java method in your code
-2. Click on the CallGraph icon in the toolbar (or use View → Tool Windows → CallGraph)
-3. Click on the **GENERATE** button, your graph will be generated
-4. Click on any node (method) in the graph to jump to its definition
-5. Click on any edge (arrow) in the graph to jump to the exact line where that method is being called
+2. Either:
+   - Right-click and select "Generate Call Graph" from the context menu
+   - Use keyboard shortcut Alt+Shift+E (Option+Shift+E on macOS)
+   - Click on the CallGraph icon in the toolbar (or use View → Tool Windows → CallGraph) and click the **GENERATE** button
+3. Click on any node (method) in the graph to jump to its definition
+4. Click on any edge (arrow) in the graph to jump to the exact line where that method is being called
 
 ## Features
 
 - You can generate call graphs for any method in your codebase
+- You can generate graphs directly from the editor context menu (right-click) or using Alt+Shift+E (Option+Shift+E on macOS) shortcut
 - You can navigate to method definitions by clicking nodes in the graph
 - You can navigate to exact method call locations by clicking edges in the graph
 - You can pan & zoom in and out of the graph
 - You can save the graph as a HTML file
+- You can customize graph appearance with options like background color
 
 ## Requirements
 
@@ -128,6 +132,24 @@ Contributions are welcome! If you'd like to contribute, please:
 2. Create a feature branch
 3. Make your changes
 4. Submit a pull request
+
+## Version History
+
+### 1.3
+- Added options menu for customizing graph background color
+- Fixed crash when opening new projects with CallGraph window open
+- Fixed multi-project support to respect active editor context
+- Added right-click context menu option to generate call graphs
+- Added keyboard shortcut (Alt+Shift+E) for quick graph generation
+
+### 1.1 & 1.2
+- Improved plugin description for better clarity
+
+### 1.0
+- Initial release
+- Interactive call graph visualization
+- Support for Java projects
+- Spring controller endpoint detection
 
 ## License
 
