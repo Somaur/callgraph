@@ -19,8 +19,13 @@
     <p><b>How to Use:</b></p>
     <ol>
       <li>Place your caret (text cursor) on any Java method in your code</li>
-      <li>Click on the CallGraph icon in the toolbar (or use View → Tool Windows → CallGraph)</li>
-      <li>Click on the <b>GENERATE</b> button, your graph will be generated</li>
+      <li>Either:
+        <ul>
+          <li>Right-click and select "Generate Call Graph" from the context menu</li>
+          <li>Use keyboard shortcut Alt+Shift+E</li>
+          <li>Click on the CallGraph icon in the toolbar (or use View → Tool Windows → CallGraph) and click the <b>GENERATE</b> button</li>
+        </ul>
+      </li>
       <li>Click on any node (method) in the graph to jump to its definition</li>
       <li>Click on any edge (arrow) in the graph to jump to the exact line where that method is being called</li>
     </ol>
@@ -28,6 +33,7 @@
     <p><b>Features:</b></p>
     <ul>
       <li>You can generate call graphs for any method in your codebase</li>
+      <li>You can generate graphs directly from the editor context menu</li>
       <li>You can navigate to method definitions by clicking nodes in the graph</li>
       <li>You can navigate to exact method call locations by clicking edges in the graph</li>
       <li>You can pan & zoom in and out of the graph</li>
@@ -64,7 +70,17 @@
     <extensions defaultExtensionNs="com.intellij">
         <toolWindow id="CallGraph" icon="AllIcons.Hierarchy.Subtypes" anchor="bottom"
                     factoryClass="callgraph.callgraph.CallGraphToolWindowFactory"/>
-        <projectService serviceImplementation="callgraph.callgraph.browser.BrowserManager"/>
-        <projectService serviceImplementation="callgraph.callgraph.CallGraphGenerator"/>
     </extensions>
+    
+    <actions>
+        <action id="CallGraph.GenerateCallGraph"
+                class="callgraph.callgraph.actions.GenerateCallGraphAction"
+                text="Generate Call Graph"
+                description="Generate a call graph for the current method"
+                icon="AllIcons.Hierarchy.Subtypes">
+            <add-to-group group-id="EditorPopupMenu" anchor="last"/>
+            <add-to-group group-id="ProjectViewPopupMenu" anchor="last"/>
+            <keyboard-shortcut keymap="$default" first-keystroke="alt shift E"/>
+        </action>
+    </actions>
 </idea-plugin>
