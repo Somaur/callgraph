@@ -77,7 +77,17 @@ The plugin consists of two main components:
 - Provides a responsive UI for graph navigation and exploration
 - Communicates with the Java backend through a JavaScript bridge
 
-## Building from Source
+# Development
+
+For development, you'll need:
+
+- JDK 17+
+- Node.js v18.10.0 (or later) and npm
+- IntelliJ IDEA
+
+**Quick Start:** The easiest way to run the project is to open it in IntelliJ IDEA and run the "Run Plugin" configuration.
+
+## Manual Build Steps
 
 ### Backend
 
@@ -109,20 +119,6 @@ The frontend uses webpack to bundle JavaScript and HTML files.
    ```
 
 This will generate the bundled files in `src/main/resources/build/`, which are then included in the plugin.
-
-## Development
-
-For development, you'll need:
-
-- JDK 17+
-- Node.js and npm
-- IntelliJ IDEA
-
-The frontend uses:
-- vis-network.js for graph visualization
-- webpack for bundling
-
-Open project in Intellij IDEA and run "Run Plugin" configuration.
 
 ## Contributing
 
