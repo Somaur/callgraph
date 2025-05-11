@@ -18,8 +18,8 @@ import java.io.IOException;
 import java.util.function.Function;
 
 public class SaveAsHtmlHandler extends JSQueryHandler {
-    public SaveAsHtmlHandler(JBCefBrowserBase browser) {
-        super(browser);
+    public SaveAsHtmlHandler(JBCefBrowserBase browser, Project project) {
+        super(browser, project);
     }
 
     @Override
@@ -27,17 +27,16 @@ public class SaveAsHtmlHandler extends JSQueryHandler {
     public Function<? super String, ? extends JBCefJSQuery.Response> getHandler() {
         return unused -> {
             FileChooserDescriptor descriptor = new FileChooserDescriptor(false, true, false, false, false, false);
-            Project project = ProjectManager.getInstance().getOpenProjects()[0];
             ApplicationManager.getApplication().invokeLater(() -> FileChooser.chooseFile(descriptor, project, null, (VirtualFile file) -> {
                 try {
                     String saveAsTemplate = Utils.getResourceFileAsString("build/saveas.html");
-                    PsiMethod lastGeneratedMethod = CallGraphGenerator.getInstance().getLastGeneratedMethod();
+                    PsiMethod lastGeneratedMethod = CallGraphGenerator.getInstance(project).getLastGeneratedMethod();
                     String className = lastGeneratedMethod.getContainingClass().getName();
                     String methodName = lastGeneratedMethod.getName();
                     String methodPath = className + "." + methodName;
                     String title = "Call Graph of " + project.getName() + " - " + methodPath;
                     saveAsTemplate = saveAsTemplate.replace("${title}", title);
-                    saveAsTemplate += "<script>updateNetwork(" + CallGraphGenerator.getInstance().getJson() + ")</script>";
+                    saveAsTemplate += "<script>updateNetwork(" + CallGraphGenerator.getInstance(project).getJson() + ")</script>";
                     Utils.writeToFile(file.getPath() + "/callgraph_" + project.getName() + "_" + className + "_" + methodName + ".html", saveAsTemplate);
                 } catch (IOException e) {
                     // TODO: handle this

@@ -1,6 +1,8 @@
 package callgraph.callgraph.browser;
 
 import callgraph.callgraph.Utils;
+import com.intellij.openapi.components.Service;
+import com.intellij.openapi.project.Project;
 import com.intellij.ui.jcef.JBCefBrowser;
 import com.intellij.ui.jcef.JBCefJSQuery;
 import org.cef.browser.CefBrowser;
@@ -10,12 +12,13 @@ import org.cef.handler.CefLoadHandlerAdapter;
 import java.io.IOException;
 import java.util.List;
 
-public class BrowserManager {
-    private static BrowserManager instance;
-
+@Service(Service.Level.PROJECT)
+public final class BrowserManager {
+    private final Project project;
     private final JBCefBrowser browser;
 
-    private BrowserManager() {
+    public BrowserManager(Project project) {
+        this.project = project;
         try {
             browser = new JBCefBrowser();
             browser.loadHTML(Utils.getResourceFileAsString("build/callgraph.html"));
@@ -26,11 +29,8 @@ public class BrowserManager {
         }
     }
 
-    public static BrowserManager getInstance() {
-        if (instance == null) {
-            instance = new BrowserManager();
-        }
-        return instance;
+    public static BrowserManager getInstance(Project project) {
+        return project.getService(BrowserManager.class);
     }
 
     public JBCefBrowser getJBCefBrowser() {
@@ -54,7 +54,7 @@ public class BrowserManager {
     }
 
     private void createJavaScriptBridge() {
-        List<JSQueryHandler> handlers = new HandlerFactory().getHandlers(browser);
+        List<JSQueryHandler> handlers = new HandlerFactory().getHandlers(browser, project);
         browser.getJBCefClient().addLoadHandler(new CefLoadHandlerAdapter() {
             @Override
             public void onLoadEnd(CefBrowser loadedBrowser, CefFrame frame, int httpStatusCode) {

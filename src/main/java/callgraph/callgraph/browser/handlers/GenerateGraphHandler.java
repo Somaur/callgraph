@@ -18,8 +18,8 @@ import org.jetbrains.annotations.NotNull;
 import java.util.function.Function;
 
 public class GenerateGraphHandler extends JSQueryHandler {
-    public GenerateGraphHandler(JBCefBrowserBase browser) {
-        super(browser);
+    public GenerateGraphHandler(JBCefBrowserBase browser, Project project) {
+        super(browser, project);
     }
 
     @Override
@@ -27,7 +27,7 @@ public class GenerateGraphHandler extends JSQueryHandler {
     public Function<? super String, ? extends JBCefJSQuery.Response> getHandler() {
         return unused -> {
             ApplicationManager.getApplication().invokeLater(() -> {
-                Project project = ProjectManager.getInstance().getOpenProjects()[0];
+                // Use the project provided to the handler
                 PsiMethod method = Utils.getMethodAtCaret(project, null);
 
                 if (method == null) {
@@ -38,8 +38,8 @@ public class GenerateGraphHandler extends JSQueryHandler {
                 ProgressManager.getInstance().run(new Task.Backgroundable(project, "Generating Call Graph") {
                     public void run(@NotNull ProgressIndicator progressIndicator) {
                         ApplicationManager.getApplication().runReadAction(() -> {
-                            String graph = CallGraphGenerator.getInstance().generate(method);
-                            BrowserManager browserManager = BrowserManager.getInstance();
+                            String graph = CallGraphGenerator.getInstance(project).generate(method);
+                            BrowserManager browserManager = BrowserManager.getInstance(project);
                             browserManager.showMessage("Sending graph to embedded browser...");
                             browserManager.updateNetwork(graph);
                         });
