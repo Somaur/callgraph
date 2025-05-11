@@ -27,6 +27,14 @@ tasks {
         targetCompatibility = "8"
     }
 
+    runIde {
+        // Get VM options from Gradle property if set
+        val ideaVmOptions = project.findProperty("ideaVmOptions") as String?
+        if (ideaVmOptions != null) {
+            jvmArgs(ideaVmOptions.split(" "))
+        }
+    }
+
     patchPluginXml {
         sinceBuild = "211" // Support from 2021.1
         untilBuild = "" // Empty string means no upper limit (support all future versions)

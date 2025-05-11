@@ -109,6 +109,10 @@ public final class BrowserManager {
                     injectQueryHandler(handler.getHandlerName(), handler.getJsQuery(), handler.getArgName());
                 }
                 browserInitialized.set(true);
+                
+                if (System.getProperty("callgraph.devtools.open") != null) {
+                    browser.openDevtools();
+                }
             }
         }, browser.getCefBrowser());
     }
