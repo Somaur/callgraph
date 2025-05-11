@@ -119,6 +119,9 @@ public final class BrowserManager {
             // Apply the background color to the graph
             executeJavaScript("document.body.style.backgroundColor = '" + backgroundColor + "';");
             executeJavaScript("document.getElementById('network').style.backgroundColor = '" + backgroundColor + "';");
+            
+            // Update message text color based on background color
+            executeJavaScript("updateMessageTextColor('" + backgroundColor + "')");
         }
     }
 
