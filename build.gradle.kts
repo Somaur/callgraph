@@ -11,11 +11,9 @@ repositories {
     mavenCentral()
 }
 
-// Configure Gradle IntelliJ Plugin
-// Read more: https://plugins.jetbrains.com/docs/intellij/tools-gradle-intellij-plugin.html
 intellij {
-    version = "2022.1" // Target a baseline version that has all APIs you need
-    type = "IC" // Target IDE Platform - Community Edition for widest compatibility
+    version = "2022.1"
+    type = "IC"
     plugins.set(listOf("com.intellij.java"))
 }
 
@@ -24,7 +22,6 @@ dependencies {
 }
 
 tasks {
-    // Set the JVM compatibility versions
     withType<JavaCompile> {
         sourceCompatibility = "8"
         targetCompatibility = "8"

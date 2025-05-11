@@ -20,17 +20,28 @@ public class CallGraphCaretListener implements CaretListener {
 
     @Override
     public void caretPositionChanged(@NotNull CaretEvent event) {
-        if (toolWindow.isVisible()) {
-            Editor editor = event.getEditor();
-            
-            // Only process events from editors in the current project
-            if (editor.getProject() != null && editor.getProject().equals(project)) {
-                PsiMethod method = Utils.getMethodAtCaret(project, editor);
+        if (toolWindow == null || !toolWindow.isVisible() || project == null) {
+            return;
+        }
+        
+        Editor editor = event.getEditor();
+        if (editor == null) {
+            return;
+        }
+        
+        // Only process events from editors in the current project
+        if (editor.getProject() != null && editor.getProject().equals(project)) {
+            PsiMethod method = Utils.getMethodAtCaret(project, editor);
 
-                if (method != null) {
-                    BrowserManager.getInstance(project).setGenerateMessage("+FOR " + method.getName());
-                } else {
-                    BrowserManager.getInstance(project).setGenerateMessage("-PLACE YOUR CARET ON A METHOD");
+            if (method != null) {
+                BrowserManager browserManager = BrowserManager.getInstance(project);
+                if (browserManager != null) {
+                    browserManager.setGenerateMessage("+FOR " + method.getName());
+                }
+            } else {
+                BrowserManager browserManager = BrowserManager.getInstance(project);
+                if (browserManager != null) {
+                    browserManager.setGenerateMessage("-PLACE YOUR CARET ON A METHOD");
                 }
             }
         }
