@@ -9,13 +9,16 @@ import org.cef.browser.CefBrowser;
 import org.cef.browser.CefFrame;
 import org.cef.handler.CefLoadHandlerAdapter;
 
+import javax.swing.Timer;
 import java.io.IOException;
 import java.util.List;
+import java.util.concurrent.atomic.AtomicBoolean;
 
 @Service(Service.Level.PROJECT)
 public final class BrowserManager {
     private final Project project;
     private final JBCefBrowser browser;
+    private final AtomicBoolean browserInitialized = new AtomicBoolean(false);
 
     public BrowserManager(Project project) {
         this.project = project;
@@ -37,8 +40,22 @@ public final class BrowserManager {
         return browser;
     }
 
+    /**
+     * Checks if the browser is initialized and ready to execute JavaScript
+     * @return true if the browser is initialized, false otherwise
+     */
+    public boolean isBrowserInitialized() {
+        return browserInitialized.get();
+    }
+    
+    /**
+     * Executes JavaScript in the browser
+     * @param script The JavaScript code to execute
+     */
     public void executeJavaScript(String script) {
-        browser.getCefBrowser().executeJavaScript(script, browser.getCefBrowser().getURL(), 0);
+        if (isBrowserInitialized()) {
+            browser.getCefBrowser().executeJavaScript(script, browser.getCefBrowser().getURL(), 0);
+        }
     }
 
     public void showMessage(String message) {
@@ -52,6 +69,35 @@ public final class BrowserManager {
     public void setGenerateMessage(String message) {
         executeJavaScript("setGenerateMessage('" + message + "')");
     }
+    
+    /**
+     * Execute a function when the browser is initialized.
+     * If the browser is already initialized, executes immediately.
+     * If not, sets up a polling mechanism to check periodically.
+     *
+     * @param callback The function to execute when the browser is ready
+     */
+    public void whenBrowserReady(Runnable callback) {
+        if (isBrowserInitialized()) {
+            callback.run();
+        } else {
+            final int[] attempts = {0};
+            final int maxAttempts = 100; // 10 seconds (100ms × 100)
+            
+            Timer timer = new Timer(100, e -> {
+                attempts[0]++;
+                
+                if (isBrowserInitialized()) {
+                    ((Timer) e.getSource()).stop();
+                    callback.run();
+                } else if (attempts[0] >= maxAttempts) {
+                    ((Timer) e.getSource()).stop();
+                    showMessage("Browser initialization timeout. Please try again.");
+                }
+            });
+            timer.start();
+        }
+    }
 
     private void createJavaScriptBridge() {
         List<JSQueryHandler> handlers = new HandlerFactory().getHandlers(browser, project);
@@ -62,6 +108,7 @@ public final class BrowserManager {
                 for (JSQueryHandler handler : handlers) {
                     injectQueryHandler(handler.getHandlerName(), handler.getJsQuery(), handler.getArgName());
                 }
+                browserInitialized.set(true);
             }
         }, browser.getCefBrowser());
     }
