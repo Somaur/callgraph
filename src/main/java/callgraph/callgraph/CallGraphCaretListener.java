@@ -34,10 +34,6 @@ public class CallGraphCaretListener implements CaretListener {
         if (editor.getProject() != null && editor.getProject().equals(project)) {
             // Check if indexing is in progress (dumb mode)
             if (DumbService.isDumb(project)) {
-                BrowserManager browserManager = BrowserManager.getInstance(project);
-                if (browserManager != null) {
-                    browserManager.setGenerateMessage("-INDEXING IN PROGRESS, PLEASE WAIT");
-                }
                 return;
             }
 

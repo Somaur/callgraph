@@ -19,11 +19,16 @@ public final class CallGraphToolWindowFactory implements ToolWindowFactory {
         BrowserManager browserManager = BrowserManager.getInstance(project);
         JBCefBrowser browser = browserManager.getJBCefBrowser();
 
+        // Add the browser component to the tool window
         JComponent component = browser.getComponent();
         Content content = toolWindow.getContentManager().getFactory().createContent(component, null, false);
         toolWindow.getContentManager().addContent(content);
-
-        EditorEventMulticaster eventMulticaster = EditorFactory.getInstance().getEventMulticaster();
-        eventMulticaster.addCaretListener(new CallGraphCaretListener(project, toolWindow));
+        
+        // Wait for browser to be ready before adding listeners
+        browserManager.whenBrowserReady(() -> {
+            // Set up caret listener once browser is initialized
+            EditorEventMulticaster eventMulticaster = EditorFactory.getInstance().getEventMulticaster();
+            eventMulticaster.addCaretListener(new CallGraphCaretListener(project, toolWindow));
+        });
     }
 }

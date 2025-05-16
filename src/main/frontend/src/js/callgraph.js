@@ -39,6 +39,10 @@ network.on("stabilizationIterationsDone", function () {
 
 
 function showMessage(message) {
+    // If the message is empty or undefined, use the default message
+    if (!message || message.trim() === '') {
+        message = "Place your caret on a method, right-click, or use Alt+Shift+E shortcut to generate a call graph.";
+    }
     messageElement.innerHTML = message;
     messageElement.classList.remove("hidden");
     networkElement.classList.add("hidden");
@@ -86,6 +90,11 @@ const MESSAGE_TYPE_ERROR = "-";
  * @param {string} message
  */
 function setGenerateMessage(message) {
+    // If the message is empty or undefined, use the default message
+    if (!message || message.trim() === '') {
+        message = "-PLACE YOUR CARET ON A METHOD";
+    }
+    
     let messageTypeFlag = message.substring(0, 1);
     let classToSet = "navbuttonMessage "
     if (messageTypeFlag === MESSAGE_TYPE_SUCCESS) {
@@ -122,11 +131,22 @@ function updateMessageTextColor(backgroundColor) {
     }
 }
 
+/**
+ * Resets the messages to their default values.
+ * Should be called when there is no active message or generate message.
+ * Uses the empty parameter call to trigger the default messages.
+ */
+function resetDefaultMessages() {
+    showMessage();
+    setGenerateMessage();
+}
+
 window.updateNetwork = updateNetwork;
 window.fit = fit;
 window.showMessage = showMessage;
 window.setGenerateMessage = setGenerateMessage;
 window.updateMessageTextColor = updateMessageTextColor;
+window.resetDefaultMessages = resetDefaultMessages;
 
-showMessage("Place your caret on a method and click on GENERATE to generate a call graph.");
-setGenerateMessage("-PLACE YOUR CARET ON A METHOD")
+// Initialize with default messages
+resetDefaultMessages();

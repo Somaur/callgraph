@@ -28,7 +28,10 @@ public final class BrowserManager {
     public BrowserManager(Project project) {
         this.project = project;
         try {
-            browser = new JBCefBrowser();
+             // Use JBCefBrowser.createBuilder() to create a browser without OSR mode
+            browser = JBCefBrowser.createBuilder()
+                .build();
+            
             browser.loadHTML(Utils.getResourceFileAsString("build/callgraph.html"));
             createJavaScriptBridge();
         } catch (IOException e) {
