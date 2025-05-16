@@ -8,8 +8,8 @@ import com.intellij.openapi.application.ApplicationManager;
 import com.intellij.openapi.progress.ProgressIndicator;
 import com.intellij.openapi.progress.ProgressManager;
 import com.intellij.openapi.progress.Task;
+import com.intellij.openapi.project.DumbService;
 import com.intellij.openapi.project.Project;
-import com.intellij.openapi.project.ProjectManager;
 import com.intellij.psi.PsiMethod;
 import com.intellij.ui.jcef.JBCefBrowserBase;
 import com.intellij.ui.jcef.JBCefJSQuery;
@@ -27,6 +27,15 @@ public class GenerateGraphHandler extends JSQueryHandler {
     public Function<? super String, ? extends JBCefJSQuery.Response> getHandler() {
         return unused -> {
             ApplicationManager.getApplication().invokeLater(() -> {
+                // Check if indexing is in progress
+                if (DumbService.isDumb(project)) {
+                    BrowserManager browserManager = BrowserManager.getInstance(project);
+                    if (browserManager != null) {
+                        browserManager.showMessage("Cannot generate call graph while indexing is in progress. Please wait for indexing to complete.");
+                    }
+                    return;
+                }
+
                 // Use the project provided to the handler
                 PsiMethod method = Utils.getMethodAtCaret(project, null);
 

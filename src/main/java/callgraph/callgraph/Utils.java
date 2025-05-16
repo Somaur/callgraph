@@ -2,6 +2,7 @@ package callgraph.callgraph;
 
 import com.intellij.openapi.editor.Editor;
 import com.intellij.openapi.fileEditor.FileEditorManager;
+import com.intellij.openapi.project.DumbService;
 import com.intellij.openapi.project.Project;
 import com.intellij.psi.*;
 import com.intellij.psi.util.PsiTreeUtil;
@@ -42,6 +43,11 @@ public final class Utils {
 
     public static PsiMethod getMethodAtCaret(Project project, Editor editor) {
         if (project == null) {
+            return null;
+        }
+
+        // Check if indexing is in progress (dumb mode)
+        if (DumbService.isDumb(project)) {
             return null;
         }
         

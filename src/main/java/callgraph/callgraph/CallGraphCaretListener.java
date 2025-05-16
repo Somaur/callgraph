@@ -4,6 +4,7 @@ import callgraph.callgraph.browser.BrowserManager;
 import com.intellij.openapi.editor.Editor;
 import com.intellij.openapi.editor.event.CaretEvent;
 import com.intellij.openapi.editor.event.CaretListener;
+import com.intellij.openapi.project.DumbService;
 import com.intellij.openapi.project.Project;
 import com.intellij.openapi.wm.ToolWindow;
 import com.intellij.psi.PsiMethod;
@@ -31,6 +32,15 @@ public class CallGraphCaretListener implements CaretListener {
         
         // Only process events from editors in the current project
         if (editor.getProject() != null && editor.getProject().equals(project)) {
+            // Check if indexing is in progress (dumb mode)
+            if (DumbService.isDumb(project)) {
+                BrowserManager browserManager = BrowserManager.getInstance(project);
+                if (browserManager != null) {
+                    browserManager.setGenerateMessage("-INDEXING IN PROGRESS, PLEASE WAIT");
+                }
+                return;
+            }
+
             PsiMethod method = Utils.getMethodAtCaret(project, editor);
 
             if (method != null) {
