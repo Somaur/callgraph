@@ -22,7 +22,7 @@
       <li>Click a node to open the method; click an edge to open the exact calling line.</li>
       <li>Pan and zoom to inspect large graphs.</li>
       <li>Export the diagram as a standalone HTML file.</li>
-      <li>Open-source (MIT) &ndash; view the code on <a href="https://github.com/yunusemregul/callgraph">GitHub</a>.</li>
+      <li>Open-source (GPL v3) &ndash; view the code on <a href="https://github.com/yunusemregul/callgraph">GitHub</a>.</li>
     </ul>
 
     <h3>Usage</h3>

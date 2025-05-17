@@ -25,7 +25,6 @@ public final class UIColor {
         return textColor;
     }
     
-    // Predefined color palette
     // TODO: Make this customizable
     private static final UIColor[] COLORS = {
         new UIColor("#E53935", "#B71C1C", "#FFFFFF"), // Red

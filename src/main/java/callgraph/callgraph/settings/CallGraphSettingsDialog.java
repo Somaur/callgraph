@@ -72,12 +72,10 @@ public class CallGraphSettingsDialog extends DialogWrapper {
     @Override
     protected JComponent createCenterPanel() {
         JPanel dialogPanel = new JPanel(new BorderLayout());
-        dialogPanel.setPreferredSize(new Dimension(400, 180));  // Reduce size for more compact dialog
+        dialogPanel.setPreferredSize(new Dimension(400, 180));
         
-        // Create tabs panel for future expansion
         JTabbedPane tabbedPane = new JTabbedPane();
         
-        // Appearance tab
         JPanel appearancePanel = createAppearancePanel();
         tabbedPane.addTab("Appearance", appearancePanel);
         
@@ -106,7 +104,6 @@ public class CallGraphSettingsDialog extends DialogWrapper {
         
         ButtonGroup backgroundGroup = new ButtonGroup();
         
-        // Create the radio buttons for background type selection
         useIdeColorButton = new JBRadioButton("Use IDE Editor Background");
         useIdeColorButton.setSelected(CallGraphSettings.BACKGROUND_TYPE_IDE.equals(selectedBackgroundType));
         backgroundGroup.add(useIdeColorButton);
@@ -132,13 +129,12 @@ public class CallGraphSettingsDialog extends DialogWrapper {
                 initialColor = Color.BLACK;
             }
             
-            // Use JColorChooser directly instead of ColorChooserService
             Color color = JColorChooser.showDialog(panel, "Choose Background Color", initialColor);
             
             if (color != null) {
                 selectedCustomColor = "#" + ColorUtil.toHex(color);
                 updateColorPreview();
-                // Automatically select custom color radio button
+
                 useCustomColorButton.setSelected(true);
                 selectedBackgroundType = CallGraphSettings.BACKGROUND_TYPE_CUSTOM;
                 
@@ -152,7 +148,6 @@ public class CallGraphSettingsDialog extends DialogWrapper {
         colorPickerPanel.add(colorPickerButton);
         colorPickerPanel.add(colorPreview);
         
-        // Layout components with compact organization
         GridBagConstraints bc = new GridBagConstraints();
         bc.gridx = 0;
         bc.gridy = 0;
@@ -168,7 +163,7 @@ public class CallGraphSettingsDialog extends DialogWrapper {
         
         bc.gridx = 0;
         bc.gridy = 2;
-        bc.insets = JBUI.insets(0, 20, 3, 3); // Indent the color picker
+        bc.insets = JBUI.insets(0, 20, 3, 3);
         backgroundPanel.add(colorPickerPanel, bc);
         
         panel.add(backgroundPanel, c);

@@ -28,9 +28,7 @@ public final class BrowserManager {
     public BrowserManager(Project project) {
         this.project = project;
         try {
-             // Use JBCefBrowser.createBuilder() to create a browser without OSR mode
-            browser = JBCefBrowser.createBuilder()
-                .build();
+            browser = new JBCefBrowser();
             
             browser.loadHTML(Utils.getResourceFileAsString("build/callgraph.html"));
             createJavaScriptBridge();
@@ -88,7 +86,7 @@ public final class BrowserManager {
             callback.run();
         } else {
             final int[] attempts = {0};
-            final int maxAttempts = 100; // 10 seconds (100ms × 100)
+            final int maxAttempts = 100;
             
             Timer timer = new Timer(100, e -> {
                 attempts[0]++;
