@@ -128,6 +128,10 @@ function hideMessage() {
 }
 
 function showGraphControls() {
+    for (let generatedGraphController of document.getElementsByClassName("generatedGraphController")) {
+        generatedGraphController.classList.remove("hidden");
+    }
+    updateShowAllButton();
     updateButtonVisibility();
 }
 
