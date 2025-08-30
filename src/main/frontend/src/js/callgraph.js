@@ -15,15 +15,25 @@ window.JavaBridge = {
 const messageElement = document.getElementById("message");
 const networkElement = document.getElementById("network");
 const generateMessage = document.getElementById("generateMessage");
+const showAllButton = document.getElementById("showAllButton");
 
 const network = new vis.Network(networkElement, {}, options);
+let hiddenNodes = new Set();
+let selectedNodeId = null;
+let isGraphFitted = false;
+let isGraphGenerated = false;
+
 network.on("click", function (params) {
     if (params.nodes.length === 1) {
+        selectedNodeId = params.nodes[0];
         JavaBridge.goToSource(params.nodes[0]);
+    } else {
+        selectedNodeId = null;
     }
     if (params.edges.length === 1) {
         JavaBridge.goToSource(params.edges[0]);
     }
+    updateButtonVisibility();
 });
 
 network.on("stabilizationProgress", function (params) {
@@ -33,13 +43,77 @@ network.on("stabilizationProgress", function (params) {
 
 network.on("stabilizationIterationsDone", function () {
     hideMessage();
+    isGraphGenerated = true;
     fit();
     showGraphControls();
 });
 
+network.on("fit", () => {
+    isGraphFitted = true;
+    updateButtonVisibility();
+});
+
+network.on("dragEnd", () => {
+    isGraphFitted = false;
+    updateButtonVisibility();
+});
+
+network.on("zoom", () => {
+    isGraphFitted = false;
+    updateButtonVisibility();
+});
+
+function hideSelectedNode() {
+    if (selectedNodeId !== null) {
+        hiddenNodes.add(selectedNodeId);
+        network.body.data.nodes.update({id: selectedNodeId, hidden: true});
+        selectedNodeId = null;
+        updateShowAllButton();
+        updateButtonVisibility();
+    }
+}
+
+function showAllNodes() {
+    if (hiddenNodes.size > 0) {
+        const hiddenNodesArray = Array.from(hiddenNodes);
+        hiddenNodesArray.forEach(nodeId => {
+            network.body.data.nodes.update({id: nodeId, hidden: false});
+        });
+        hiddenNodes.clear();
+        updateShowAllButton();
+    }
+}
+
+function updateShowAllButton() {
+    if (hiddenNodes.size > 0) {
+        showAllButton.classList.remove("hidden");
+    } else {
+        showAllButton.classList.add("hidden");
+    }
+}
+
+function updateButtonVisibility() {
+    const fitButton = document.querySelector('button[onclick="fit()"]');
+    const hideNodeButton = document.querySelector('button[onclick="hideSelectedNode()"]');
+    
+    if (fitButton) {
+        if (!isGraphGenerated || isGraphFitted) {
+            fitButton.classList.add("hidden");
+        } else {
+            fitButton.classList.remove("hidden");
+        }
+    }
+    
+    if (hideNodeButton) {
+        if (selectedNodeId !== null) {
+            hideNodeButton.classList.remove("hidden");
+        } else {
+            hideNodeButton.classList.add("hidden");
+        }
+    }
+}
 
 function showMessage(message) {
-    // If the message is empty or undefined, use the default message
     if (!message || message.trim() === '') {
         message = "Place your caret on a method, right-click, or use Alt+Shift+E shortcut to generate a call graph.";
     }
@@ -54,9 +128,7 @@ function hideMessage() {
 }
 
 function showGraphControls() {
-    for (let generatedGraphController of document.getElementsByClassName("generatedGraphController")) {
-        generatedGraphController.classList.remove("hidden");
-    }
+    updateButtonVisibility();
 }
 
 function hideGraphControls() {
@@ -67,6 +139,11 @@ function hideGraphControls() {
 
 function updateNetwork(data) {
     hideGraphControls();
+    hiddenNodes.clear();
+    selectedNodeId = null;
+    isGraphFitted = false;
+    isGraphGenerated = false;
+    updateShowAllButton();
     showMessage("Rendering graph...");
     try {
         options.groups = data.groups;
@@ -80,17 +157,14 @@ function updateNetwork(data) {
 
 function fit() {
     network.fit();
+    isGraphFitted = true;
+    updateButtonVisibility();
 }
 
 const MESSAGE_TYPE_SUCCESS = "+";
 const MESSAGE_TYPE_ERROR = "-";
 
-/**
- * Sets the message by the GENERATE button.
- * @param {string} message
- */
 function setGenerateMessage(message) {
-    // If the message is empty or undefined, use the default message
     if (!message || message.trim() === '') {
         message = "-PLACE YOUR CARET ON A METHOD";
     }
@@ -106,24 +180,15 @@ function setGenerateMessage(message) {
     generateMessage.innerHTML = message.substring(1);
 }
 
-/**
- * Determines if a color is light or dark and updates the centeredMessage text color accordingly
- * @param {string} backgroundColor - Color in hex format (#RRGGBB)
- */
 function updateMessageTextColor(backgroundColor) {
-    // Remove the # if it exists
     backgroundColor = backgroundColor.replace('#', '');
     
-    // Convert hex to RGB
     const r = parseInt(backgroundColor.substr(0, 2), 16);
     const g = parseInt(backgroundColor.substr(2, 2), 16);
     const b = parseInt(backgroundColor.substr(4, 2), 16);
     
-    // Calculate brightness (using relative luminance formula)
-    // https://www.w3.org/TR/WCAG20/#relativeluminancedef
     const brightness = (0.299 * r + 0.587 * g + 0.114 * b) / 255;
     
-    // If brightness > 0.5, it's a light color, otherwise dark
     if (brightness > 0.5) {
         messageElement.style.color = "black";
     } else {
@@ -131,11 +196,6 @@ function updateMessageTextColor(backgroundColor) {
     }
 }
 
-/**
- * Resets the messages to their default values.
- * Should be called when there is no active message or generate message.
- * Uses the empty parameter call to trigger the default messages.
- */
 function resetDefaultMessages() {
     showMessage();
     setGenerateMessage();
@@ -147,6 +207,8 @@ window.showMessage = showMessage;
 window.setGenerateMessage = setGenerateMessage;
 window.updateMessageTextColor = updateMessageTextColor;
 window.resetDefaultMessages = resetDefaultMessages;
+window.hideSelectedNode = hideSelectedNode;
+window.showAllNodes = showAllNodes;
 
-// Initialize with default messages
 resetDefaultMessages();
+updateButtonVisibility();

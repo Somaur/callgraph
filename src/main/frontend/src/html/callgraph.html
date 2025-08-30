@@ -3,6 +3,7 @@
 
 <head>
     <title>Network</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <style type="text/css">
         html,
         body,
@@ -31,6 +32,12 @@
             position: absolute;
             top: 12px;
             left: 12px;
+        }
+
+        .navbar-right {
+            position: absolute;
+            top: 12px;
+            right: 12px;
         }
 
         .navbutton, .navbuttonMessage {
@@ -74,6 +81,19 @@
         .navbuttonMessage-error {
             background-color: rgb(182, 42, 60);
         }
+
+        .button-group {
+            margin-bottom: 2px;
+        }
+
+        .button-group:last-child {
+            margin-bottom: 0;
+        }
+
+        .button-icon {
+            margin-right: 8px;
+            font-size: 0.9em;
+        }
     </style>
 </head>
 
@@ -81,18 +101,48 @@
 <div id="message" class="centeredMessage hidden"></div>
 <div id="network"></div>
 <div id="navbar" class="navbar">
-    <!-- TODO: button icons -->
-    <!-- TODO: hierarchical view option -->
-    <!-- TODO: make transparent when not hovered -->
-    <!-- TODO: limit depth option -->
-    <div class="buttonAndMessageContainer" onclick="JavaBridge.generateGraph()">
-        <button class="navbutton">GENERATE</button>
-        <span id="generateMessage" class="navbuttonMessage"></span>
+    <div class="button-group">
+        <div class="buttonAndMessageContainer" onclick="JavaBridge.generateGraph()">
+            <button class="navbutton">
+                <i class="fas fa-magic button-icon"></i>GENERATE
+            </button>
+            <span id="generateMessage" class="navbuttonMessage"></span>
+        </div>
     </div>
-    <button class="navbutton generatedGraphController hidden" onclick="fit()">FIT</button>
-    <button class="navbutton generatedGraphController hidden" onclick="JavaBridge.saveAsHtml()">SAVE AS HTML</button>
-    <button class="navbutton" onclick="JavaBridge.openSettings()">OPTIONS</button>
+    
+    <div class="button-group">
+        <button class="navbutton generatedGraphController hidden" onclick="fit()">
+            <i class="fas fa-expand-arrows-alt button-icon"></i>FIT
+        </button>
+    </div>
+    
+    <div class="button-group">
+        <button class="navbutton generatedGraphController hidden" onclick="hideSelectedNode()">
+            <i class="fas fa-eye-slash button-icon"></i>HIDE NODE
+        </button>
+    </div>
+    
+    <div class="button-group">
+        <button class="navbutton hidden" id="showAllButton" onclick="showAllNodes()">
+            <i class="fas fa-eye button-icon"></i>SHOW ALL
+        </button>
+    </div>
 </div>
+
+<div id="navbar-right" class="navbar-right">
+    <div class="button-group">
+        <button class="navbutton generatedGraphController hidden" onclick="JavaBridge.saveAsHtml()">
+            <i class="fas fa-download button-icon"></i>SAVE AS HTML
+        </button>
+    </div>
+    
+    <div class="button-group">
+        <button class="navbutton" onclick="JavaBridge.openSettings()">
+            <i class="fas fa-cog button-icon"></i>OPTIONS
+        </button>
+    </div>
+</div>
+
 <script defer="defer">
     <% /*
         The following line is a workaround for scripts that insert .js code into the generated .html file.
