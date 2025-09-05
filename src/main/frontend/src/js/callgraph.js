@@ -1,5 +1,6 @@
 import vis from "vis-network/standalone/umd/vis-network.min.js";
 import options from "./vis-options";
+import "@fortawesome/fontawesome-free/css/all.min.css";
 
 window.JavaBridge = {
     goToSource: (referenceHashCode) => {

@@ -8,6 +8,18 @@ module.exports = [
             filename: 'callgraph.js',
             path: path.resolve(__dirname, '../resources/build')
         },
+        module: {
+            rules: [
+                {
+                    test: /\.css$/i,
+                    use: ['style-loader', 'css-loader']
+                },
+                {
+                    test: /\.(woff|woff2|eot|ttf|otf)$/i,
+                    type: 'asset/inline'
+                }
+            ]
+        },
         plugins: [
             new HtmlWebpackPlugin({
                 template: './src/html/callgraph.html',
@@ -21,6 +33,18 @@ module.exports = [
         output: {
             filename: 'saveas.js',
             path: path.resolve(__dirname, '../resources/build')
+        },
+        module: {
+            rules: [
+                {
+                    test: /\.css$/i,
+                    use: ['style-loader', 'css-loader']
+                },
+                {
+                    test: /\.(woff|woff2|eot|ttf|otf)$/i,
+                    type: 'asset/inline'
+                }
+            ]
         },
         plugins: [
             new HtmlWebpackPlugin({
