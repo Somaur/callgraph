@@ -16,25 +16,32 @@
     <description><![CDATA[
     <p><strong>CallGraph</strong> visualizes caller–callee relationships for any Java method and lets you jump straight to definitions or call sites.</p>
 
+    <h3>How to use</h3>
+    <ol>
+      <li><strong>Right-click on a method</strong> and select <em>Generate Call Graph</em> from the context menu</li>
+      <li><strong>Open CallGraph tool window</strong> (View → Tool Windows → CallGraph), place your caret on any Java method, and click the Generate button</li>
+      <li><strong>Use keyboard shortcut</strong> Alt+Shift+E (Option+Shift+E on macOS) while your caret is on a method</li>
+      <li><strong>Explore the graph:</strong> Click nodes to open methods, click edges to jump to exact calling lines</li>
+      <li><strong>Hide unwanted nodes:</strong> Click on a node and use the "Hide Node" button to clean up the visualization</li>
+    </ol>
+
     <h3>Key features</h3>
     <ul>
-      <li>Create a call graph from the current caret position (Alt+Shift+E / Option+Shift+E on&nbsp;macOS).</li>
-      <li>Click a node to open the method; click an edge to open the exact calling line.</li>
-      <li>Pan and zoom to inspect large graphs.</li>
-      <li>Export the diagram as a standalone HTML file.</li>
-      <li>Open-source (GPL v3) &ndash; view the code on <a href="https://github.com/yunusemregul/callgraph">GitHub</a>.</li>
+      <li>Interactive call graph visualization with pan and zoom</li>
+      <li>Direct navigation to method definitions and call sites</li>
+      <li>Export diagrams as standalone HTML files</li>
+      <li>Open-source (GPL v3) &ndash; view the code on <a href="https://github.com/yunusemregul/callgraph">GitHub</a></li>
     </ul>
-
-    <h3>Usage</h3>
-    <ol>
-      <li>Place the caret on any Java method.</li>
-      <li>Select <em>Generate Call Graph</em> from the context menu, toolbar, tool window, or use the shortcut.</li>
-      <li>Explore the graph and click elements to navigate within the IDE.</li>
-    </ol>
       ]]></description>
 
     <!-- Change notes documentation -->
     <change-notes><![CDATA[
+    <h3>1.5</h3>
+    <ul>
+      <li>Added node hiding functionality - click on a node to see the "Hide Node" button</li>
+      <li>Added "Show All" button to restore all hidden nodes</li>
+    </ul>
+    
     <h3>1.4</h3>
     <ul>
       <li>Added proper handling for IDE indexing state (fixed IndexNotReadyException)</li>
