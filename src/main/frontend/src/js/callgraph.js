@@ -115,16 +115,18 @@ function createContextMenu() {
         box-shadow: 0 2px 8px rgba(0,0,0,0.3);
     `;
     
-    const hideItem = document.createElement('div');
-    hideItem.id = 'contextMenuHide';
-    hideItem.innerHTML = '<i class="fas fa-eye-slash" style="margin-right: 8px;"></i>Hide Node';
-    hideItem.style.cssText = `
+    const menuItemStyle = `
         padding: 8px 16px;
         color: #DDD;
         cursor: pointer;
         font-size: 14px;
         white-space: nowrap;
     `;
+    
+    const hideItem = document.createElement('div');
+    hideItem.id = 'contextMenuHide';
+    hideItem.innerHTML = '<i class="fas fa-eye-slash" style="margin-right: 8px;"></i>Hide Node';
+    hideItem.style.cssText = menuItemStyle;
     hideItem.onmouseover = () => hideItem.style.background = '#555';
     hideItem.onmouseout = () => hideItem.style.background = 'transparent';
     hideItem.onclick = () => {
@@ -132,16 +134,21 @@ function createContextMenu() {
         hideContextMenu();
     };
     
+    const hideWithCallersItem = document.createElement('div');
+    hideWithCallersItem.id = 'contextMenuHideWithCallers';
+    hideWithCallersItem.innerHTML = '<i class="fas fa-project-diagram" style="margin-right: 8px;"></i>Hide Node & All Callers';
+    hideWithCallersItem.style.cssText = menuItemStyle;
+    hideWithCallersItem.onmouseover = () => hideWithCallersItem.style.background = '#555';
+    hideWithCallersItem.onmouseout = () => hideWithCallersItem.style.background = 'transparent';
+    hideWithCallersItem.onclick = () => {
+        hideNodeWithCallers(selectedNodeId);
+        hideContextMenu();
+    };
+    
     const goToSourceItem = document.createElement('div');
     goToSourceItem.id = 'contextMenuGoToSource';
     goToSourceItem.innerHTML = '<i class="fas fa-code" style="margin-right: 8px;"></i>Go to Source';
-    goToSourceItem.style.cssText = `
-        padding: 8px 16px;
-        color: #DDD;
-        cursor: pointer;
-        font-size: 14px;
-        white-space: nowrap;
-    `;
+    goToSourceItem.style.cssText = menuItemStyle;
     goToSourceItem.onmouseover = () => goToSourceItem.style.background = '#555';
     goToSourceItem.onmouseout = () => goToSourceItem.style.background = 'transparent';
     goToSourceItem.onclick = () => {
@@ -152,9 +159,38 @@ function createContextMenu() {
     };
     
     menu.appendChild(hideItem);
+    menu.appendChild(hideWithCallersItem);
     menu.appendChild(goToSourceItem);
     document.body.appendChild(menu);
     return menu;
+}
+
+function hideNodeWithCallers(nodeId) {
+    if (nodeId === null) return;
+    
+    const nodesToHide = new Set();
+    collectCallersRecursively(nodeId, nodesToHide);
+    
+    nodesToHide.forEach(id => {
+        hiddenNodes.add(id);
+        network.body.data.nodes.update({id: id, hidden: true});
+    });
+    
+    selectedNodeId = null;
+    updateShowAllButton();
+    updateButtonVisibility();
+}
+
+function collectCallersRecursively(nodeId, collected) {
+    if (collected.has(nodeId)) return;
+    collected.add(nodeId);
+    
+    const edges = network.body.data.edges.get();
+    edges.forEach(edge => {
+        if (edge.to === nodeId) {
+            collectCallersRecursively(edge.from, collected);
+        }
+    });
 }
 
 const contextMenu = createContextMenu();
@@ -264,6 +300,19 @@ function updateNetwork(data) {
     try {
         options.groups = data.groups;
         network.setOptions(options);
+        
+        // Mark truncated nodes with special style
+        if (data.truncatedNodes && data.truncatedNodes.length > 0) {
+            const truncatedSet = new Set(data.truncatedNodes);
+            data.nodes.forEach(node => {
+                if (truncatedSet.has(node.id)) {
+                    node.label = node.label + '\n⚠ [Limited]';
+                    node.borderWidth = 3;
+                    node.shapeProperties = { borderDashes: [5, 5] };
+                }
+            });
+        }
+        
         network.setData(data);
         network.stabilize();
         

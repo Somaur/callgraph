@@ -25,6 +25,8 @@ public final class CallGraphGenerator {
     private final JSONObject groups;
     private final HashMap<Integer, PsiElement> references = new HashMap<>();
     private final HashSet<Integer> processedMethods = new HashSet<>(); // Track methods already recursively processed
+    private final HashMap<Integer, Integer> nodeMinDepth = new HashMap<>(); // Track minimum depth each node was visited at
+    private final HashSet<Integer> truncatedNodes = new HashSet<>(); // Nodes that were truncated due to depth limit
     private PsiMethod lastGeneratedMethod;
     private boolean depthLimitReached = false;
 
@@ -68,6 +70,10 @@ public final class CallGraphGenerator {
         graph.put("groups", groups);
         graph.put("depthLimitReached", depthLimitReached);
         graph.put("maxDepth", CallGraphSettings.getInstance(project).getMaxDepth());
+        
+        JSONArray truncatedNodeIds = new JSONArray();
+        truncatedNodeIds.addAll(truncatedNodes);
+        graph.put("truncatedNodes", truncatedNodeIds);
 
         return graph.toJSONString();
     }
@@ -78,6 +84,8 @@ public final class CallGraphGenerator {
         groups.clear();
         references.clear();
         processedMethods.clear();
+        nodeMinDepth.clear();
+        truncatedNodes.clear();
         depthLimitReached = false;
     }
 
@@ -92,6 +100,8 @@ public final class CallGraphGenerator {
                     "Warning: Maximum depth (" + maxDepth + ") reached. Some callers may not be shown."
                 );
             }
+            // Mark the method (which is at depth-1) as truncated since we can't explore its callers
+            truncatedNodes.add(method.hashCode());
             return;
         }
         
@@ -113,13 +123,24 @@ public final class CallGraphGenerator {
             if (caller == null || !caller.getProject().equals(method.getProject())) continue;
 
             final boolean nodeNotExists = !references.containsKey(caller.hashCode());
+            final int callerHashCode = caller.hashCode();
 
             if (nodeNotExists) {
                 // Store the caller method itself for node navigation (clicking node jumps to method definition)
-                references.put(caller.hashCode(), caller);
+                references.put(callerHashCode, caller);
+                nodeMinDepth.put(callerHashCode, depth);
                 JSONObject callerNode = createMethodNode(caller, depth);
                 nodes.add(callerNode);
                 createGroupIfNotExists(caller);
+            } else {
+                // Node already exists, check if we found it at a smaller depth
+                Integer previousMinDepth = nodeMinDepth.get(callerHashCode);
+                if (previousMinDepth != null && depth < previousMinDepth) {
+                    nodeMinDepth.put(callerHashCode, depth);
+                    // If this node was previously marked as truncated but now found at smaller depth,
+                    // we can explore its callers, so remove the truncated mark
+                    truncatedNodes.remove(callerHashCode);
+                }
             }
 
             // Store the call reference for edge navigation (clicking edge jumps to call site)
@@ -128,8 +149,8 @@ public final class CallGraphGenerator {
             edges.add(edge);
 
             // Only recurse if this method hasn't been processed yet (proper cycle detection)
-            if (!processedMethods.contains(caller.hashCode())) {
-                processedMethods.add(caller.hashCode());
+            if (!processedMethods.contains(callerHashCode)) {
+                processedMethods.add(callerHashCode);
                 findAndAddCallers(caller, depth + 1);
             }
         }
