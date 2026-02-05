@@ -44,3 +44,5 @@ bin/
 
 node_modules
 /src/main/resources/build/
+
+gradle.properties

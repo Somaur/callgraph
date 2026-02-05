@@ -21,10 +21,19 @@ dependencies {
     implementation("com.googlecode.json-simple:json-simple:1.1.1")
 }
 
+
 tasks {
     withType<JavaCompile> {
-        sourceCompatibility = "8"
-        targetCompatibility = "8"
+        sourceCompatibility = "11"
+        targetCompatibility = "11"
+    }
+
+    withType<org.jetbrains.kotlin.gradle.tasks.KotlinCompile> {
+        kotlinOptions.jvmTarget = "11"
+    }
+
+    buildSearchableOptions {
+        enabled = false
     }
 
     runIde {
@@ -36,7 +45,7 @@ tasks {
     }
 
     patchPluginXml {
-        sinceBuild = "211" // Support from 2021.1
+        sinceBuild = "221" // Support from 2022.1
         untilBuild = "" // Empty string means no upper limit (support all future versions)
     }
 
