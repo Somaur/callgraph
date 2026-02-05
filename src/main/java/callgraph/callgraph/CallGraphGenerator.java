@@ -1,6 +1,7 @@
 package callgraph.callgraph;
 
 import callgraph.callgraph.browser.BrowserManager;
+import callgraph.callgraph.settings.CallGraphSettings;
 import com.intellij.openapi.components.Service;
 import com.intellij.openapi.editor.Document;
 import com.intellij.openapi.project.Project;
@@ -13,6 +14,7 @@ import org.json.simple.JSONObject;
 
 import java.util.Collection;
 import java.util.HashMap;
+import java.util.HashSet;
 
 @SuppressWarnings("unchecked")
 @Service(Service.Level.PROJECT)
@@ -22,7 +24,9 @@ public final class CallGraphGenerator {
     private final JSONArray edges;
     private final JSONObject groups;
     private final HashMap<Integer, PsiElement> references = new HashMap<>();
+    private final HashSet<Integer> processedMethods = new HashSet<>(); // Track methods already recursively processed
     private PsiMethod lastGeneratedMethod;
+    private boolean depthLimitReached = false;
 
     public CallGraphGenerator(Project project) {
         this.project = project;
@@ -71,16 +75,35 @@ public final class CallGraphGenerator {
         edges.clear();
         groups.clear();
         references.clear();
+        processedMethods.clear();
+        depthLimitReached = false;
     }
 
     private void findAndAddCallers(PsiMethod method, int depth) {
+        int maxDepth = CallGraphSettings.getInstance(project).getMaxDepth();
+        
+        // Check depth limit
+        if (depth > maxDepth) {
+            if (!depthLimitReached) {
+                depthLimitReached = true;
+                BrowserManager.getInstance(project).showMessage(
+                    "Warning: Maximum depth (" + maxDepth + ") reached. Some callers may not be shown."
+                );
+            }
+            return;
+        }
+        
         Collection<PsiReference> allReferences = ReferencesSearch.search(method).findAll();
-        for (PsiClass anInterface : method.getContainingClass().getInterfaces()) {
-            PsiMethod methodBySignature = anInterface.findMethodBySignature(method, false);
-            if (methodBySignature != null) {
-                allReferences.addAll(ReferencesSearch.search(methodBySignature).findAll());
+        PsiClass containingClass = method.getContainingClass();
+        if (containingClass != null) {
+            for (PsiClass anInterface : containingClass.getInterfaces()) {
+                PsiMethod methodBySignature = anInterface.findMethodBySignature(method, false);
+                if (methodBySignature != null) {
+                    allReferences.addAll(ReferencesSearch.search(methodBySignature).findAll());
+                }
             }
         }
+        
         for (PsiReference reference : allReferences) {
             PsiElement callReference = reference.getElement();
             PsiMethod caller = PsiTreeUtil.getParentOfType(callReference, PsiMethod.class);
@@ -90,17 +113,23 @@ public final class CallGraphGenerator {
             final boolean nodeNotExists = !references.containsKey(caller.hashCode());
 
             if (nodeNotExists) {
-                references.put(caller.hashCode(), reference.getElement());
+                // Store the caller method itself for node navigation (clicking node jumps to method definition)
+                references.put(caller.hashCode(), caller);
                 JSONObject callerNode = createMethodNode(caller, depth);
                 nodes.add(callerNode);
                 createGroupIfNotExists(caller);
             }
 
+            // Store the call reference for edge navigation (clicking edge jumps to call site)
             references.put(callReference.hashCode(), reference.getElement());
             JSONObject edge = createEdge(method, callReference, caller);
             edges.add(edge);
 
-            findAndAddCallers(caller, depth + 1);
+            // Only recurse if this method hasn't been processed yet (proper cycle detection)
+            if (!processedMethods.contains(caller.hashCode())) {
+                processedMethods.add(caller.hashCode());
+                findAndAddCallers(caller, depth + 1);
+            }
         }
     }
 

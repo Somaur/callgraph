@@ -19,9 +19,14 @@ public class CallGraphSettings implements PersistentStateComponent<CallGraphSett
     public static final String BACKGROUND_TYPE_CUSTOM = "custom";
     public static final String BACKGROUND_TYPE_IDE = "ide";
     
+    public static final int DEFAULT_MAX_DEPTH = 10;
+    public static final int MIN_MAX_DEPTH = 1;
+    public static final int MAX_MAX_DEPTH = 100;
+    
     // Default settings
     private String backgroundType = BACKGROUND_TYPE_CUSTOM;
     private String customBackgroundColor = "#000000"; // Default to black
+    private int maxDepth = DEFAULT_MAX_DEPTH; // Maximum recursion depth for call graph generation
 
     public static CallGraphSettings getInstance(Project project) {
         return project.getService(CallGraphSettings.class);
@@ -64,5 +69,20 @@ public class CallGraphSettings implements PersistentStateComponent<CallGraphSett
             return ideEditorBackgroundColor;
         }
         return customBackgroundColor;
+    }
+
+    public int getMaxDepth() {
+        return maxDepth;
+    }
+
+    public void setMaxDepth(int maxDepth) {
+        // Clamp value to valid range
+        if (maxDepth < MIN_MAX_DEPTH) {
+            this.maxDepth = MIN_MAX_DEPTH;
+        } else if (maxDepth > MAX_MAX_DEPTH) {
+            this.maxDepth = MAX_MAX_DEPTH;
+        } else {
+            this.maxDepth = maxDepth;
+        }
     }
 }
