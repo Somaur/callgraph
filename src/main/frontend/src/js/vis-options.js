@@ -16,6 +16,11 @@ const options = {
             size: 12,
             align: "middle"
         },
+        smooth: {
+            enabled: true,
+            type: "dynamic",
+            roundness: 0.5
+        }
     },
     interaction: {
         zoomSpeed: 0.25,
