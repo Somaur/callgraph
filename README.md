@@ -93,36 +93,44 @@ For development, you'll need:
 
 ## Manual Build Steps
 
-### Backend
+> **Important**: You must build the frontend first, then build the backend plugin. Otherwise, the plugin will fail at runtime due to missing HTML resources.
 
-1. Clone this repository
-2. Open the project in IntelliJ IDEA
-3. Use Gradle to build the plugin:
-   ```
-   ./gradlew buildPlugin
-   ```
-4. The plugin ZIP file will be generated in `build/distributions/`
-
-### Frontend
+### 1. Build Frontend
 
 The frontend uses webpack to bundle JavaScript and HTML files.
 
-1. Navigate to the frontend directory:
-   ```
-   cd src/main/frontend
-   ```
+```bash
+# Navigate to the frontend directory
+cd src/main/frontend
 
-2. Install dependencies:
-   ```
-   npm install
-   ```
+# Install dependencies
+npm install
 
-3. Build the frontend assets:
-   ```
-   npx webpack
-   ```
+# Build the frontend assets
+npm run build:prod
+```
 
-This will generate the bundled files in `src/main/resources/build/`, which are then included in the plugin.
+This will generate the bundled files in `src/main/resources/build/` (including `callgraph.html`, `saveas.html`, etc.).
+
+### 2. Build Backend Plugin
+
+```bash
+# Return to project root
+cd ../../..
+
+# Use Gradle to build the plugin
+./gradlew buildPlugin
+```
+
+The plugin ZIP file will be generated in `build/distributions/`.
+
+### One-liner Build Script
+
+You can also use the following command to complete the full build in one step:
+
+```bash
+cd src/main/frontend && npm install && npm run build:prod && cd ../../.. && ./gradlew clean buildPlugin
+```
 
 ## Contributing
 
