@@ -17,6 +17,7 @@ const messageElement = document.getElementById("message");
 const networkElement = document.getElementById("network");
 const generateMessage = document.getElementById("generateMessage");
 const showAllButton = document.getElementById("showAllButton");
+const depthWarningElement = document.getElementById("depthWarning");
 
 const network = new vis.Network(networkElement, {}, options);
 let hiddenNodes = new Set();
@@ -35,6 +36,18 @@ network.on("click", function (params) {
         JavaBridge.goToSource(params.edges[0]);
     }
     updateButtonVisibility();
+    hideContextMenu();
+});
+
+network.on("oncontext", function (params) {
+    params.event.preventDefault();
+    const nodeId = network.getNodeAt(params.pointer.DOM);
+    if (nodeId !== undefined) {
+        selectedNodeId = nodeId;
+        showContextMenu(params.pointer.DOM.x, params.pointer.DOM.y, nodeId);
+    } else {
+        hideContextMenu();
+    }
 });
 
 network.on("stabilizationProgress", function (params) {
@@ -71,7 +84,104 @@ function hideSelectedNode() {
         selectedNodeId = null;
         updateShowAllButton();
         updateButtonVisibility();
+        hideContextMenu();
     }
+}
+
+function clearGraph() {
+    network.setData({nodes: [], edges: []});
+    hiddenNodes.clear();
+    selectedNodeId = null;
+    isGraphFitted = false;
+    isGraphGenerated = false;
+    hideGraphControls();
+    updateShowAllButton();
+    hideContextMenu();
+    hideDepthWarning();
+    resetDefaultMessages();
+}
+
+function createContextMenu() {
+    const menu = document.createElement('div');
+    menu.id = 'contextMenu';
+    menu.style.cssText = `
+        position: absolute;
+        display: none;
+        background: #333;
+        border: 1px solid #555;
+        border-radius: 4px;
+        padding: 4px 0;
+        z-index: 1000;
+        box-shadow: 0 2px 8px rgba(0,0,0,0.3);
+    `;
+    
+    const hideItem = document.createElement('div');
+    hideItem.id = 'contextMenuHide';
+    hideItem.innerHTML = '<i class="fas fa-eye-slash" style="margin-right: 8px;"></i>Hide Node';
+    hideItem.style.cssText = `
+        padding: 8px 16px;
+        color: #DDD;
+        cursor: pointer;
+        font-size: 14px;
+        white-space: nowrap;
+    `;
+    hideItem.onmouseover = () => hideItem.style.background = '#555';
+    hideItem.onmouseout = () => hideItem.style.background = 'transparent';
+    hideItem.onclick = () => {
+        hideSelectedNode();
+        hideContextMenu();
+    };
+    
+    const goToSourceItem = document.createElement('div');
+    goToSourceItem.id = 'contextMenuGoToSource';
+    goToSourceItem.innerHTML = '<i class="fas fa-code" style="margin-right: 8px;"></i>Go to Source';
+    goToSourceItem.style.cssText = `
+        padding: 8px 16px;
+        color: #DDD;
+        cursor: pointer;
+        font-size: 14px;
+        white-space: nowrap;
+    `;
+    goToSourceItem.onmouseover = () => goToSourceItem.style.background = '#555';
+    goToSourceItem.onmouseout = () => goToSourceItem.style.background = 'transparent';
+    goToSourceItem.onclick = () => {
+        if (selectedNodeId !== null) {
+            JavaBridge.goToSource(selectedNodeId);
+        }
+        hideContextMenu();
+    };
+    
+    menu.appendChild(hideItem);
+    menu.appendChild(goToSourceItem);
+    document.body.appendChild(menu);
+    return menu;
+}
+
+const contextMenu = createContextMenu();
+
+function showContextMenu(x, y, nodeId) {
+    contextMenu.style.left = x + 'px';
+    contextMenu.style.top = y + 'px';
+    contextMenu.style.display = 'block';
+}
+
+function hideContextMenu() {
+    contextMenu.style.display = 'none';
+}
+
+document.addEventListener('click', function(event) {
+    if (!contextMenu.contains(event.target)) {
+        hideContextMenu();
+    }
+});
+
+function showDepthWarning(maxDepth) {
+    depthWarningElement.innerHTML = '<i class="fas fa-exclamation-triangle"></i>Maximum depth (' + maxDepth + ') reached. Some callers may not be shown.';
+    depthWarningElement.classList.remove("hidden");
+}
+
+function hideDepthWarning() {
+    depthWarningElement.classList.add("hidden");
 }
 
 function showAllNodes() {
@@ -149,12 +259,17 @@ function updateNetwork(data) {
     isGraphFitted = false;
     isGraphGenerated = false;
     updateShowAllButton();
+    hideDepthWarning();
     showMessage("Rendering graph...");
     try {
         options.groups = data.groups;
         network.setOptions(options);
         network.setData(data);
         network.stabilize();
+        
+        if (data.depthLimitReached) {
+            showDepthWarning(data.maxDepth);
+        }
     } catch (e) {
         showMessage(e);
     }
@@ -214,6 +329,9 @@ window.updateMessageTextColor = updateMessageTextColor;
 window.resetDefaultMessages = resetDefaultMessages;
 window.hideSelectedNode = hideSelectedNode;
 window.showAllNodes = showAllNodes;
+window.clearGraph = clearGraph;
+window.showDepthWarning = showDepthWarning;
+window.hideDepthWarning = hideDepthWarning;
 
 resetDefaultMessages();
 updateButtonVisibility();

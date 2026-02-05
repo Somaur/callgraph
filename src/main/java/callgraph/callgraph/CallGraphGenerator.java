@@ -66,6 +66,8 @@ public final class CallGraphGenerator {
         graph.put("nodes", nodes);
         graph.put("edges", edges);
         graph.put("groups", groups);
+        graph.put("depthLimitReached", depthLimitReached);
+        graph.put("maxDepth", CallGraphSettings.getInstance(project).getMaxDepth());
 
         return graph.toJSONString();
     }
