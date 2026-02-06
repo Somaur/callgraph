@@ -1,13 +1,13 @@
-# CallGraph - IntelliJ Plugin
+# CallGraph - IntelliJ Plugin (Fork)
+
+> ⚠️ **Note**: This is a **forked repository** with custom modifications. This fork is not published to JetBrains Marketplace. If you want to use this version, you need to build it from source.
+>
+> **Original Repository**: [yunusemregul/callgraph](https://github.com/yunusemregul/callgraph)
 
 <p align="center">
   <img src="src/main/resources/META-INF/pluginIcon.svg" alt="CallGraph Icon" height="128">
   <br>
   <b>CallGraph</b>
-  <br><br>
-  <a href="https://plugins.jetbrains.com/plugin/27227-callgraph">
-    <img src="get-from-marketplace.png" alt="Get from Marketplace" height="64">
-  </a>
 </p>
 
 ## Overview
@@ -15,6 +15,19 @@
 CallGraph helps you understand your Java codebase by visualizing how methods call each other. Simply select any method, generate a graph, and explore the connections through an interactive diagram. When you click on edges in the graph, you'll be taken directly to where that method call appears in your code editor.
 
 ![Sample Callgraph](sample.jpeg)
+
+## Fork Enhancements
+
+This fork includes the following enhancements over the original:
+
+- **Clear Graph Button**: Added a CLEAR button to remove the current call graph display
+- **Depth Limit Warning**: Shows a visual warning when the graph is truncated due to maxDepth limit
+- **Truncated Node Markers**: Nodes that couldn't be fully explored due to depth limits are marked with `⚠ [Limited]` and dashed borders
+- **Right-click Context Menu**: Right-click on any node to access options without triggering code navigation
+  - **Hide Node**: Hide the selected node
+  - **Hide Node & All Callers**: Hide the node and all its callers (tree-style hiding)
+  - **Go to Source**: Navigate to the method definition
+- **Dynamic Edge Smoothing**: Improved edge behavior when dragging nodes - edges now dynamically adjust their connection points
 
 ## Usage
 
@@ -25,16 +38,21 @@ CallGraph helps you understand your Java codebase by visualizing how methods cal
    - Click on the CallGraph icon in the toolbar (or use View → Tool Windows → CallGraph) and click the **GENERATE** button
 3. Click on any node (method) in the graph to jump to its definition
 4. Click on any edge (arrow) in the graph to jump to the exact line where that method is being called
+5. Right-click on any node to access the context menu for hiding nodes or navigating to source
 
 ## Features
 
-- You can generate call graphs for any method in your codebase
-- You can generate graphs directly from the editor context menu (right-click) or using Alt+Shift+E (Option+Shift+E on macOS) shortcut
-- You can navigate to method definitions by clicking nodes in the graph
-- You can navigate to exact method call locations by clicking edges in the graph
-- You can pan & zoom in and out of the graph
-- You can save the graph as a HTML file
-- You can customize graph appearance with options like background color
+- Generate call graphs for any method in your codebase
+- Generate graphs via right-click context menu or Alt+Shift+E (Option+Shift+E on macOS) shortcut
+- Navigate to method definitions by clicking nodes
+- Navigate to exact method call locations by clicking edges
+- **Hide individual nodes** or **hide entire call branches** via right-click menu
+- Show all hidden nodes with the "SHOW ALL" button
+- **Clear the graph** with the CLEAR button
+- **Visual indicators** for depth-limited nodes
+- Pan & zoom the graph
+- Save the graph as an HTML file
+- Customize graph appearance with options like background color
 
 ## Requirements
 
@@ -44,25 +62,21 @@ CallGraph helps you understand your Java codebase by visualizing how methods cal
 
 ## Installation
 
-You can install CallGraph in several ways:
+### Build from Source (Recommended for this Fork)
 
-### From JetBrains Marketplace
+Since this is a fork with custom modifications, you need to build the plugin yourself:
 
-<p align="center">
-   <a href="https://plugins.jetbrains.com/plugin/27227-callgraph">
-      <img src="get-from-marketplace.png" alt="Get from Marketplace" height="64">
-   </a>
-</p>
-
-1. Click the button above
+1. Clone this repository
+2. Follow the [Development](#development) section below to build the plugin
+3. Install the generated ZIP file from `build/distributions/`
 
 ### Manual Installation
 
-1. Download the latest release from the [Releases page](https://github.com/yunusemregul/callgraph/releases)
+1. Build the plugin following the steps above, or download a pre-built ZIP if available
 2. Open IntelliJ IDEA
 3. Go to Settings (Preferences) → Plugins
 4. Click the gear icon and select "Install Plugin from Disk..."
-5. Select the downloaded ZIP file
+5. Select the ZIP file
 6. Restart IntelliJ IDEA when prompted
 
 ## Architecture
@@ -143,17 +157,33 @@ Contributions are welcome! If you'd like to contribute, please:
 
 ## Version History
 
-### 1.3
+### Fork Versions
+
+#### Fork 1.2
+- Added "Hide Node & All Callers" feature for tree-style hiding
+- Added truncated node markers (⚠ [Limited]) for depth-limited nodes
+- Improved edge smoothing with dynamic connection points
+
+#### Fork 1.1
+- Added CLEAR button to remove current graph
+- Added depth limit warning display
+- Added right-click context menu with Hide Node and Go to Source options
+
+### Original Versions
+
+> The following versions are from the [original repository](https://github.com/yunusemregul/callgraph):
+
+#### 1.3
 - Added options menu for customizing graph background color
 - Fixed crash when opening new projects with CallGraph window open
 - Fixed multi-project support to respect active editor context
 - Added right-click context menu option to generate call graphs
 - Added keyboard shortcut (Alt+Shift+E) for quick graph generation
 
-### 1.1 & 1.2
+#### 1.1 & 1.2
 - Improved plugin description for better clarity
 
-### 1.0
+#### 1.0
 - Initial release
 - Interactive call graph visualization
 - Support for Java projects
@@ -161,4 +191,4 @@ Contributions are welcome! If you'd like to contribute, please:
 
 ## License
 
-This project is licensed under [LICENSE](LICENSE) - see the LICENSE file for details.
+This project is licensed under GPL v3 - see the [LICENSE](LICENSE) file for details.
