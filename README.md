@@ -1,5 +1,7 @@
 # CallGraph - IntelliJ Plugin (Fork)
 
+[中文README](README_ZH.md)
+
 > ⚠️ **Note**: This is a **forked repository** with custom modifications. This fork is not published to JetBrains Marketplace. If you want to use this version, you need to build it from source.
 >
 > **Original Repository**: [yunusemregul/callgraph](https://github.com/yunusemregul/callgraph)
